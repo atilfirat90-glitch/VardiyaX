@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             x:Class="ShiftCraft.Mobile.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             BackgroundColor="{StaticResource Gray100}"
+             Title="ShiftCraft Login">
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            
+            <!-- Logo Area -->
+            <Frame BackgroundColor="{StaticResource Primary}" 
+                   CornerRadius="50" 
+                   HeightRequest="100" 
+                   WidthRequest="100"
+                   HorizontalOptions="Center"
+                   Padding="0"
+                   HasShadow="True">
+                <Label Text="VX" 
+                       FontSize="40" 
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Frame>
+            
+            <Label Text="VardiyaX" 
+                   FontSize="32" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Primary}"/>
+            
+            <Label Text="Vardiya Yönetim Sistemi" 
+                   FontSize="14" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Gray500}"/>
+            
+            <!-- Login Form -->
+            <Frame Padding="20" CornerRadius="10" HasShadow="True" BackgroundColor="White" Margin="0,20,0,0">
+                <VerticalStackLayout Spacing="15">
+                    
+                    <Label Text="Username" FontSize="12" TextColor="{StaticResource Gray600}"/>
+                    <Entry Placeholder="Enter username" 
+                           Text="{Binding Username}"
+                           Keyboard="Default"
+                           ReturnType="Next"/>
+                    
+                    <Label Text="Password" FontSize="12" TextColor="{StaticResource Gray600}"/>
+                    <Entry Placeholder="Enter password" 
+                           Text="{Binding Password}"
+                           IsPassword="True"
+                           ReturnType="Done"/>
+                    
+                    <Label Text="{Binding ErrorMessage}" 
+                           TextColor="Red"
+                           FontSize="12"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"/>
+                    
+                    <Button Text="Login" 
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            CornerRadius="5"
+                            HeightRequest="50"
+                            Margin="0,10,0,0"/>
+                    
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource Primary}"/>
+                    
+                </VerticalStackLayout>
+            </Frame>
+            
+            <Label Text="VardiyaX v1.0" 
+                   FontSize="10" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Gray400}"
+                   Margin="0,20,0,0"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

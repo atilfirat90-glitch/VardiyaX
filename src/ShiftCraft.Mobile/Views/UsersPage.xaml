@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:services="clr-namespace:ShiftCraft.Mobile.Services"
+             x:Class="ShiftCraft.Mobile.Views.UsersPage"
+             x:DataType="vm:UsersViewModel"
+             Title="Kullanıcılar"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header with Add Button -->
+        <Grid Grid.Row="0" Padding="15,10" ColumnDefinitions="*,Auto">
+            <Label Text="{Binding Users.Count, StringFormat='{0} kullanıcı'}"
+                   FontSize="12"
+                   TextColor="{StaticResource Gray500}"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="1"
+                    Text="+ Yeni"
+                    Command="{Binding AddUserCommand}"
+                    IsVisible="{Binding IsAdmin}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontSize="12"
+                    HeightRequest="35"
+                    CornerRadius="8"/>
+        </Grid>
+
+        <!-- User List -->
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefreshCommand}"
+                     RefreshColor="{StaticResource Primary}">
+            <CollectionView ItemsSource="{Binding Users}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="services:UserDto">
+                        <Frame Margin="10,5" Padding="15" CornerRadius="10" HasShadow="True" BackgroundColor="White">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UsersViewModel}}, Path=EditUserCommand}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="15">
+                                <!-- Avatar -->
+                                <Frame Grid.Column="0"
+                                       BackgroundColor="{StaticResource Primary}"
+                                       CornerRadius="25"
+                                       HeightRequest="50"
+                                       WidthRequest="50"
+                                       Padding="0"
+                                       HasShadow="False">
+                                    <Label Text="{Binding Username, Converter={StaticResource FirstCharConverter}}"
+                                           FontSize="20"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Info -->
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                    <Label Text="{Binding Username}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource Gray900}"/>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Frame BackgroundColor="{Binding Role, Converter={StaticResource RoleColorConverter}}"
+                                               CornerRadius="8"
+                                               Padding="8,2"
+                                               HasShadow="False">
+                                            <Label Text="{Binding Role}"
+                                                   FontSize="10"
+                                                   TextColor="White"/>
+                                        </Frame>
+                                        <Frame BackgroundColor="{Binding IsActive, Converter={StaticResource ActiveStatusColorConverter}}"
+                                               CornerRadius="8"
+                                               Padding="8,2"
+                                               HasShadow="False">
+                                            <Label Text="{Binding IsActive, Converter={StaticResource ActiveStatusTextConverter}}"
+                                                   FontSize="10"
+                                                   TextColor="White"/>
+                                        </Frame>
+                                    </HorizontalStackLayout>
+                                    <Label Text="{Binding LastLoginAt, StringFormat='Son giriş: {0:dd.MM.yyyy HH:mm}'}"
+                                           FontSize="11"
+                                           TextColor="{StaticResource Gray500}"
+                                           IsVisible="{Binding LastLoginAt, Converter={StaticResource NullToBoolConverter}}"/>
+                                </VerticalStackLayout>
+
+                                <!-- Arrow -->
+                                <Label Grid.Column="2"
+                                       Text="›"
+                                       FontSize="24"
+                                       TextColor="{StaticResource Gray400}"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                        <Label Text="👤" FontSize="48" HorizontalOptions="Center"/>
+                        <Label Text="Kullanıcı bulunamadı"
+                               FontSize="16"
+                               TextColor="{StaticResource Gray500}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Yenilemek için aşağı çekin"
+                               FontSize="12"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Error Message -->
+        <Frame Grid.Row="1"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+               BackgroundColor="#FFEBEE"
+               CornerRadius="8"
+               Margin="15"
+               Padding="15"
+               VerticalOptions="Start">
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="#C62828"
+                   FontSize="14"/>
+        </Frame>
+    </Grid>
+</ContentPage>

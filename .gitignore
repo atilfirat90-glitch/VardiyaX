@@ -1,0 +1,54 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+publish/
+publish-linux/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# MAUI
+*.apk
+*.aab
+*.ipa
+android-release/
+
+# Build artifacts
+deploy.zip
+publish-linux.zip
+vardiyax-release.*
+webapp-logs*/
+webapp-logs*.zip
+
+# IDE
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (never commit)
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json.example
+
+# Test results
+TestResults/
+*.trx

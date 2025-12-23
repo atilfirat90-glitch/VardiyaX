@@ -1,0 +1,35 @@
+VardiyaX - Profesyonel Vardiya Yönetim Sistemi
+
+VardiyaX, işletmenizin vardiya planlamasını kolaylaştıran ve çalışma kurallarına uyumu otomatik olarak takip eden mobil uygulamadır.
+
+ÖZELLİKLER:
+
+📅 Vardiya Yönetimi
+• Haftalık vardiya planları oluşturun ve yönetin
+• Çalışan atamalarını kolayca yapın
+• Vardiya şablonları ile hızlı planlama
+
+👥 Çalışan Takibi
+• Tüm çalışanlarınızı tek ekranda görün
+• Aktif/pasif durum yönetimi
+• Rol bazlı yetkilendirme
+
+⚠️ Kural İhlali Takibi
+• Çalışma kurallarına uyumu otomatik kontrol
+• İhlal bildirimleri ve uyarılar
+• Geçmiş ihlal kayıtları
+
+🔔 Bildirimler
+• Yeni vardiya yayınlandığında bildirim
+• Kural ihlali tespit edildiğinde uyarı
+• Vardiya hatırlatıcıları
+
+📴 Çevrimdışı Mod
+• İnternet olmadan da vardiyaları görüntüleyin
+• Otomatik senkronizasyon
+
+🔐 Güvenlik
+• Rol bazlı erişim kontrolü (Admin, Yönetici, Çalışan)
+• Güvenli oturum yönetimi
+
+VardiyaX ile vardiya yönetimini profesyonelleştirin!

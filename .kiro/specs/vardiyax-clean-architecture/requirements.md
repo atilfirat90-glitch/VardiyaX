@@ -1,0 +1,173 @@
+# Requirements Document
+
+## Introduction
+
+ShiftCraft, işletmelerin çalışan vardiya planlamasını yönetmek için tasarlanmış kapsamlı bir vardiya yönetim sistemidir. Sistem, çalışan yönetimi, vardiya şablonları, haftalık programlar, vardiya atamaları ve iş kuralları doğrulaması sağlar. Clean Architecture prensiplerine uygun .NET 8 çözümü olarak geliştirilecektir.
+
+## Glossary
+
+- **System**: ShiftCraft vardiya yönetim platformu
+- **Business**: Vardiya planlaması yapılan işletme
+- **Employee**: İşletmede çalışan personel
+- **Weekly_Schedule**: Bir haftalık vardiya programı
+- **Schedule_Day**: Program içindeki tek bir gün
+- **Shift_Assignment**: Bir çalışana atanan vardiya
+- **Shift_Template**: Yeniden kullanılabilir vardiya tanımı
+- **Role**: Çalışan pozisyonu/görevi
+- **Day_Type**: Gün kategorisi (hafta içi, hafta sonu, tatil)
+- **Work_Rule**: İşletme çalışma kuralları
+- **Core_Staff_Rule**: Minimum çekirdek personel gereksinimleri
+- **Rule_Violation**: Tespit edilen kural ihlali
+
+## Requirements
+
+### Requirement 1: İşletme Yönetimi
+
+**User Story:** Sistem yöneticisi olarak, işletmeleri yönetmek istiyorum, böylece her işletme için ayrı vardiya planlaması yapabilirim.
+
+#### Acceptance Criteria
+
+1. THE System SHALL maintain business records with unique identifiers
+2. THE System SHALL store business name and timezone information
+3. WHEN deleting a business, THE System SHALL prevent deletion if related records exist (NO ACTION)
+4. THE System SHALL track all business-related configurations separately
+
+### Requirement 2: Çalışan Yönetimi
+
+**User Story:** İK yöneticisi olarak, çalışanları yönetmek istiyorum, böylece vardiya atamalarını yapabilirim.
+
+#### Acceptance Criteria
+
+1. WHEN creating an employee, THE System SHALL require a valid business association
+2. THE System SHALL store employee name, core staff status, weekly max minutes, and active status
+3. THE System SHALL support marking employees as core staff (IsCoreStaff)
+4. THE System SHALL enforce weekly maximum working minutes per employee
+5. WHEN deleting an employee, THE System SHALL prevent deletion if shift assignments exist (NO ACTION)
+6. THE System SHALL support employee activation/deactivation
+
+### Requirement 3: Rol Yönetimi
+
+**User Story:** İK yöneticisi olarak, rolleri ve çalışan-rol ilişkilerini yönetmek istiyorum.
+
+#### Acceptance Criteria
+
+1. THE System SHALL maintain role definitions with unique names
+2. THE System SHALL support many-to-many relationship between employees and roles
+3. WHEN deleting an employee, THE System SHALL cascade delete employee-role associations
+4. WHEN deleting a role, THE System SHALL prevent deletion if assignments exist (NO ACTION)
+
+### Requirement 4: Gün Tipi Yönetimi
+
+**User Story:** Sistem yöneticisi olarak, gün tiplerini tanımlamak istiyorum.
+
+#### Acceptance Criteria
+
+1. THE System SHALL maintain day type definitions with unique codes
+2. THE System SHALL support day type codes: Weekday, Weekend, Holiday
+3. WHEN deleting a day type, THE System SHALL prevent deletion if used (NO ACTION)
+
+
+### Requirement 5: Vardiya Şablonu Yönetimi
+
+**User Story:** Vardiya planlayıcısı olarak, yeniden kullanılabilir vardiya şablonları oluşturmak istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating a shift template, THE System SHALL require a valid business association
+2. THE System SHALL store shift name, start time, end time, and duration in minutes
+3. THE System SHALL calculate and validate duration based on start/end times
+4. WHEN deleting a shift template, THE System SHALL prevent deletion if used in assignments (NO ACTION)
+
+### Requirement 6: Haftalık Program Yönetimi
+
+**User Story:** Vardiya planlayıcısı olarak, haftalık programlar oluşturmak ve yönetmek istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating a weekly schedule, THE System SHALL require a valid business association
+2. THE System SHALL store week start date and schedule status
+3. THE System SHALL support schedule statuses: Draft, Published, Archived
+4. WHEN deleting a weekly schedule, THE System SHALL cascade delete all schedule days
+5. THE System SHALL track schedule status transitions
+
+### Requirement 7: Program Günü Yönetimi
+
+**User Story:** Vardiya planlayıcısı olarak, her gün için vardiya planlaması yapmak istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating a schedule day, THE System SHALL require valid weekly schedule and day type associations
+2. THE System SHALL store the specific date for each schedule day
+3. WHEN deleting a schedule day, THE System SHALL cascade delete all shift assignments
+4. THE System SHALL prevent duplicate dates within the same weekly schedule
+
+### Requirement 8: Vardiya Atama Yönetimi
+
+**User Story:** Vardiya planlayıcısı olarak, çalışanlara vardiya atamak istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating a shift assignment, THE System SHALL require valid schedule day, employee, role, and shift template associations
+2. THE System SHALL track shift source: Manual, AutoGenerated, Swapped
+3. WHEN deleting a schedule day, THE System SHALL cascade delete assignments
+4. WHEN deleting an employee, role, or shift template, THE System SHALL prevent deletion if assignments exist (NO ACTION)
+5. THE System SHALL prevent duplicate assignments for same employee on same day
+
+### Requirement 9: Vardiya Gereksinimi Yönetimi
+
+**User Story:** Vardiya planlayıcısı olarak, her gün tipi için gerekli personel sayısını belirlemek istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating a shift requirement, THE System SHALL require valid business, day type, role, and shift template associations
+2. THE System SHALL store required employee count for each combination
+3. WHEN deleting related entities, THE System SHALL prevent deletion if requirements exist (NO ACTION)
+4. THE System SHALL validate required count is positive
+
+### Requirement 10: Çalışma Kuralları Yönetimi
+
+**User Story:** İK yöneticisi olarak, işletme çalışma kurallarını tanımlamak istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating work rules, THE System SHALL require a valid business association
+2. THE System SHALL store: IsSevenDaysOpen, MaxDailyMinutes, MinWeeklyOffDays
+3. THE System SHALL enforce maximum daily working minutes validation
+4. THE System SHALL enforce minimum weekly off days validation
+5. WHEN deleting a business, THE System SHALL prevent deletion if work rules exist (NO ACTION)
+
+### Requirement 11: Çekirdek Personel Kuralları
+
+**User Story:** İK yöneticisi olarak, minimum çekirdek personel gereksinimlerini tanımlamak istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN creating core staff rules, THE System SHALL require valid business and day type associations
+2. THE System SHALL store minimum core staff count per day type
+3. THE System SHALL validate minimum count is non-negative
+4. WHEN deleting related entities, THE System SHALL prevent deletion if rules exist (NO ACTION)
+
+### Requirement 12: Kural İhlali Takibi
+
+**User Story:** Vardiya planlayıcısı olarak, kural ihlallerini görmek istiyorum.
+
+#### Acceptance Criteria
+
+1. WHEN a rule violation is detected, THE System SHALL create a violation record
+2. THE System SHALL require valid weekly schedule and employee associations
+3. THE System SHALL store violation date and rule code
+4. THE System SHALL support rule codes: MaxDailyMinutes, WeeklyOffDays, CoreStaffMinimum
+5. WHEN deleting a weekly schedule, THE System SHALL cascade delete violations
+6. WHEN deleting an employee, THE System SHALL prevent deletion if violations exist (NO ACTION)
+
+### Requirement 13: Kural Motoru
+
+**User Story:** Sistem olarak, vardiya atamalarını iş kurallarına göre doğrulamak istiyorum.
+
+#### Acceptance Criteria
+
+1. THE System SHALL validate MaxDailyMinutes rule for each employee per day
+2. THE System SHALL validate MinWeeklyOffDays rule for each employee per week
+3. THE System SHALL validate CoreStaffMinimum rule for each day type
+4. WHEN a violation is detected, THE System SHALL create a RuleViolation record
+5. THE System SHALL run validations when schedule status changes to Published

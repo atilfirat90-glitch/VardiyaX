@@ -1,0 +1,134 @@
+@startuml
+hide circle
+skinparam linetype ortho
+skinparam entityAttributeIconSize 0
+
+' ===================== ENTITIES =====================
+
+entity Businesses {
+  +Id : int <<PK>>
+  Name
+  Timezone
+}
+
+entity Employees {
+  +Id : int <<PK>>
+  BusinessId <<FK>>
+  Name
+  IsCoreStaff
+  WeeklyMaxMinutes
+  IsActive
+}
+
+entity WeeklySchedules {
+  +Id : int <<PK>>
+  BusinessId <<FK>>
+  WeekStartDate
+  Status
+}
+
+entity ScheduleDays {
+  +Id : int <<PK>>
+  WeeklyScheduleId <<FK>>
+  Date
+  DayTypeId <<FK>>
+}
+
+entity ShiftAssignments {
+  +Id : int <<PK>>
+  ScheduleDayId <<FK>>
+  EmployeeId <<FK>>
+  RoleId <<FK>>
+  ShiftTemplateId <<FK>>
+  Source
+}
+
+entity RuleViolations {
+  +Id : int <<PK>>
+  WeeklyScheduleId <<FK>>
+  EmployeeId <<FK>>
+  ViolationDate
+  RuleCode
+}
+
+entity Roles {
+  +Id : int <<PK>>
+  Name
+}
+
+entity EmployeeRoles {
+  +EmployeeId <<PK, FK>>
+  +RoleId <<PK, FK>>
+}
+
+entity DayTypes {
+  +Id : int <<PK>>
+  Code
+}
+
+entity ShiftTemplates {
+  +Id : int <<PK>>
+  BusinessId <<FK>>
+  Name
+  StartTime
+  EndTime
+  DurationMinutes
+}
+
+entity ShiftRequirements {
+  +Id : int <<PK>>
+  BusinessId <<FK>>
+  DayTypeId <<FK>>
+  RoleId <<FK>>
+  ShiftTemplateId <<FK>>
+  RequiredCount
+}
+
+entity CoreStaffRules {
+  +Id : int <<PK>>
+  BusinessId <<FK>>
+  DayTypeId <<FK>>
+  MinCoreStaffCount
+}
+
+entity WorkRules {
+  +Id : int <<PK>>
+  BusinessId <<FK>>
+  IsSevenDaysOpen
+  MaxDailyMinutes
+  MinWeeklyOffDays
+}
+
+' ===================== RELATIONSHIPS =====================
+' Format:
+' Parent ||--o{ Child : "FK (ON DELETE …)"
+
+Businesses ||--o{ Employees : BusinessId\nON DELETE NO ACTION
+Businesses ||--o{ WeeklySchedules : BusinessId\nON DELETE NO ACTION
+Businesses ||--o{ ShiftTemplates : BusinessId\nON DELETE NO ACTION
+Businesses ||--o{ ShiftRequirements : BusinessId\nON DELETE NO ACTION
+Businesses ||--o{ CoreStaffRules : BusinessId\nON DELETE NO ACTION
+Businesses ||--o{ WorkRules : BusinessId\nON DELETE NO ACTION
+
+WeeklySchedules ||--o{ ScheduleDays : WeeklyScheduleId\nON DELETE CASCADE
+ScheduleDays ||--o{ ShiftAssignments : ScheduleDayId\nON DELETE CASCADE
+
+WeeklySchedules ||--o{ RuleViolations : WeeklyScheduleId\nON DELETE CASCADE
+
+Employees ||--o{ ShiftAssignments : EmployeeId\nON DELETE NO ACTION
+Employees ||--o{ RuleViolations : EmployeeId\nON DELETE NO ACTION
+
+Employees ||--o{ EmployeeRoles : EmployeeId\nON DELETE CASCADE
+Roles ||--o{ EmployeeRoles : RoleId\nON DELETE NO ACTION
+
+Roles ||--o{ ShiftAssignments : RoleId\nON DELETE NO ACTION
+ShiftTemplates ||--o{ ShiftAssignments : ShiftTemplateId\nON DELETE NO ACTION
+
+DayTypes ||--o{ ScheduleDays : DayTypeId\nON DELETE NO ACTION
+DayTypes ||--o{ ShiftRequirements : DayTypeId\nON DELETE NO ACTION
+DayTypes ||--o{ CoreStaffRules : DayTypeId\nON DELETE NO ACTION
+
+Roles ||--o{ ShiftRequirements : RoleId\nON DELETE NO ACTION
+ShiftTemplates ||--o{ ShiftRequirements : ShiftTemplateId\nON DELETE NO ACTION
+
+@enduml

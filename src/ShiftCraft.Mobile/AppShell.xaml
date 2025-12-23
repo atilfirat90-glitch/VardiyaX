@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ShiftCraft.Mobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ShiftCraft.Mobile.Views"
+    Shell.FlyoutBehavior="Flyout"
+    FlyoutBackgroundColor="{StaticResource Primary}">
+
+    <Shell.FlyoutHeader>
+        <VerticalStackLayout Padding="20" BackgroundColor="{StaticResource Primary}">
+            <Frame BackgroundColor="White" 
+                   CornerRadius="40" 
+                   HeightRequest="80" 
+                   WidthRequest="80"
+                   HorizontalOptions="Center"
+                   Padding="0"
+                   HasShadow="False">
+                <Label Text="VX" 
+                       FontSize="32" 
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Primary}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Frame>
+            <Label x:Name="UserNameLabel"
+                   Text="VardiyaX" 
+                   FontSize="20" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,10,0,0"/>
+            <Label x:Name="UserRoleLabel"
+                   Text="Vardiya Yönetim Sistemi" 
+                   FontSize="12"
+                   TextColor="White"
+                   Opacity="0.8"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+    </Shell.FlyoutHeader>
+
+    <!-- Login Route (No Flyout) -->
+    <ShellContent
+        Route="login"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Shell.FlyoutBehavior="Disabled"
+        Shell.NavBarIsVisible="False"
+        FlyoutItemIsVisible="False"/>
+
+    <!-- Main TabBar -->
+    <FlyoutItem Title="Ana Sayfa" Icon="dotnet_bot.png" Route="main">
+        <Tab Title="Çalışanlar">
+            <ShellContent
+                Title="Çalışanlar"
+                Icon="dotnet_bot.png"
+                ContentTemplate="{DataTemplate views:EmployeesPage}"/>
+        </Tab>
+        <Tab Title="Vardiyalar">
+            <ShellContent
+                Title="Vardiyalar"
+                Icon="dotnet_bot.png"
+                ContentTemplate="{DataTemplate views:SchedulesPage}"/>
+        </Tab>
+        <Tab Title="İhlaller">
+            <ShellContent
+                Title="İhlaller"
+                Icon="dotnet_bot.png"
+                ContentTemplate="{DataTemplate views:ViolationsPage}"/>
+        </Tab>
+    </FlyoutItem>
+
+    <!-- Admin Menu -->
+    <FlyoutItem Title="Kullanıcı Yönetimi" Icon="dotnet_bot.png" Route="users">
+        <ShellContent
+            Title="Kullanıcılar"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:UsersPage}"/>
+    </FlyoutItem>
+
+    <!-- Audit Logs Menu -->
+    <FlyoutItem Title="Denetim Günlükleri" Icon="dotnet_bot.png" Route="auditlogs">
+        <ShellContent
+            Title="Denetim Günlükleri"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:AuditLogsPage}"/>
+    </FlyoutItem>
+
+    <!-- Settings Menu -->
+    <FlyoutItem Title="Bildirim Ayarları" Icon="dotnet_bot.png" Route="notifications">
+        <ShellContent
+            Title="Bildirim Ayarları"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:NotificationPreferencesPage}"/>
+    </FlyoutItem>
+
+    <!-- Logout Menu Item -->
+    <MenuItem Text="Çıkış Yap" 
+              IconImageSource="dotnet_bot.png"
+              Clicked="OnLogoutClicked"/>
+
+</Shell>

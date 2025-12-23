@@ -1,0 +1,15 @@
+{
+  "app_name": "VardiyaX",
+  "package_name": "com.vardiyax.mobile",
+  "version_name": "1.0",
+  "version_code": 1,
+  "default_language": "tr-TR",
+  "category": "Business",
+  "content_rating": "Everyone",
+  "privacy_policy_url": "https://vardiyax.com/privacy",
+  "support_email": "support@vardiyax.com",
+  "developer_name": "VardiyaX",
+  "short_description": "Vardiya yönetimi ve kural ihlali takibi",
+  "target_sdk": 35,
+  "min_sdk": 21
+}

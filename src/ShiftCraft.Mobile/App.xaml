@@ -1,0 +1,36 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:ShiftCraft.Mobile"
+             xmlns:converters="clr-namespace:ShiftCraft.Mobile.Converters"
+             x:Class="ShiftCraft.Mobile.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <converters:DraftStatusConverter x:Key="DraftStatusConverter"/>
+            <converters:SeverityColorConverter x:Key="SeverityColorConverter"/>
+            <converters:ScheduleStatusColorConverter x:Key="ScheduleStatusColorConverter"/>
+            <converters:ActiveStatusColorConverter x:Key="ActiveStatusColorConverter"/>
+            <converters:ActiveStatusTextConverter x:Key="ActiveStatusTextConverter"/>
+            <converters:SeverityIconConverter x:Key="SeverityIconConverter"/>
+            <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+            <converters:FirstCharConverter x:Key="FirstCharConverter"/>
+            <converters:RoleColorConverter x:Key="RoleColorConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <converters:EditModeToButtonTextConverter x:Key="EditModeToButtonTextConverter"/>
+            <converters:TabSelectedColorConverter x:Key="TabSelectedColorConverter"/>
+            <converters:TabSelectedTextColorConverter x:Key="TabSelectedTextColorConverter"/>
+            <converters:TabVisibilityConverter x:Key="TabVisibilityConverter"/>
+            <converters:LoginActionColorConverter x:Key="LoginActionColorConverter"/>
+            <converters:LoginActionIconConverter x:Key="LoginActionIconConverter"/>
+            <converters:AcknowledgedTextConverter x:Key="AcknowledgedTextConverter"/>
+            <converters:AcknowledgedColorConverter x:Key="AcknowledgedColorConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,233 @@
+# Implementation Plan: VardiyaX Mobile Advanced Features
+
+## Overview
+
+Bu plan, VardiyaX mobil uygulaması için gelişmiş özelliklerin implementasyonunu kapsar. Backend API ve Mobile client paralel olarak geliştirilecektir. C# / .NET 8 (API) ve .NET MAUI (Mobile) kullanılacaktır.
+
+## Tasks
+
+- [x] 1. Backend: User Management API
+  - [x] 1.1 Create User entity and migration
+    - Add User table with Id, Username, PasswordHash, Role, IsActive, MustChangePassword, CreatedAt, LastLoginAt, BusinessId
+    - Add unique index on Username
+    - _Requirements: 1.1, 1.2, 1.3, 1.7_
+  - [x] 1.2 Implement UserController with CRUD endpoints
+    - POST /api/v1/user - Create user (Admin only)
+    - GET /api/v1/user - List users (Admin only, scoped by BusinessId)
+    - GET /api/v1/user/{id} - Get user (Admin only, validate BusinessId)
+    - PUT /api/v1/user/{id} - Update user role/status (Admin only)
+    - DELETE /api/v1/user/{id} - Deactivate user (Admin only)
+    - POST /api/v1/user/{id}/reset-password - Reset password (Admin only)
+    - _Requirements: 1.1, 1.2, 1.4, 1.5, 1.6, 2.1, 2.2, 11.1, 11.5_
+  - [x] 1.3 Update AuthController login response with UserContextDto
+    - Return UserId, Username, Role, BusinessId, BusinessName
+    - Single source of truth for mobile client
+    - _Requirements: 1.1_
+  - [x] 1.4 Implement password validation and hashing
+    - Minimum 8 characters, at least one digit
+    - Use BCrypt for hashing
+    - _Requirements: 2.3_
+  - [ ]* 1.5 Write property test for username uniqueness
+    - **Property 1: Username Uniqueness**
+    - **Validates: Requirements 1.3**
+  - [ ]* 1.6 Write property test for role-based access control
+    - **Property 2: Role-Based Access Control**
+    - **Validates: Requirements 1.6**
+  - [ ]* 1.7 Write property test for password validation
+    - **Property 4: Password Validation**
+    - **Validates: Requirements 2.3**
+  - [ ]* 1.8 Write property test for multi-tenant isolation
+    - **Property 18: Multi-Tenant Data Isolation**
+    - **Validates: Requirements 11.1, 11.5**
+
+- [x] 2. Backend: Audit Log API
+  - [x] 2.1 Create LoginLog and PublishLog entities and migrations
+    - LoginLog: Id, Username, Timestamp, Action, DeviceInfo, FailureReason, IpAddress
+    - PublishLog: Id, WeeklyScheduleId, PublisherUsername, Timestamp, AffectedEmployeeCount
+    - _Requirements: 3.1, 3.2, 3.3, 4.1, 4.2_
+  - [x] 2.2 Implement AuditController endpoints
+    - GET /api/v1/audit/login - Login logs with filtering
+    - GET /api/v1/audit/publish - Publish logs with filtering
+    - GET /api/v1/audit/violations - Violation history with filtering
+    - GET /api/v1/audit/violations/trends - Violation trends
+    - POST /api/v1/audit/violations/{id}/acknowledge - Acknowledge violation
+    - _Requirements: 3.4, 3.6, 4.3, 5.1, 5.2, 5.3, 5.4_
+  - [x] 2.3 Integrate login logging into AuthController
+    - Log successful logins, logouts, and failed attempts
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 2.4 Integrate publish logging into WeeklyScheduleController
+    - Log when schedule status changes to Published
+    - _Requirements: 4.1, 4.2, 4.4_
+  - [ ]* 2.5 Write property test for audit log ordering
+    - **Property 6: Audit Log Ordering**
+    - **Validates: Requirements 3.4**
+  - [ ]* 2.6 Write property test for audit log filtering
+    - **Property 7: Audit Log Filtering**
+    - **Validates: Requirements 3.6, 4.3, 5.2**
+
+- [x] 3. Checkpoint - Backend User & Audit APIs
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Backend: Push Notification Service
+  - [x] 4.1 Create DeviceRegistration entity and migration
+    - Id, UserId, DeviceToken, Platform, RegisteredAt, LastActiveAt
+    - _Requirements: 6.1, 7.1, 8.1_
+  - [x] 4.2 Implement IPushNotificationService
+    - SendSchedulePublishedNotification
+    - SendViolationDetectedNotification
+    - ScheduleShiftReminder / CancelShiftReminder
+    - _Requirements: 6.1, 6.2, 7.1, 7.2, 8.1, 8.2, 8.3, 8.5_
+  - [x] 4.3 Create NotificationPreferences table and API
+    - Store user notification preferences
+    - GET/PUT /api/v1/user/notification-preferences
+    - _Requirements: 6.4, 7.4, 8.4_
+  - [x] 4.4 Integrate push notifications into schedule publish flow
+    - Send notifications when schedule is published
+    - _Requirements: 6.1_
+  - [x] 4.5 Integrate push notifications into rule violation detection
+    - Send notifications when violations are detected
+    - _Requirements: 7.1_
+  - [ ]* 4.6 Write property test for notification targeting - schedule
+    - **Property 10: Notification Targeting - Schedule Published**
+    - **Validates: Requirements 6.1, 6.4**
+  - [ ]* 4.7 Write property test for notification targeting - violations
+    - **Property 11: Notification Targeting - Violations**
+    - **Validates: Requirements 7.1, 7.4**
+  - [ ]* 4.8 Write property test for cancelled shift no reminder
+    - **Property 13: Cancelled Shift No Reminder**
+    - **Validates: Requirements 8.5**
+
+- [x] 5. Checkpoint - Backend Push Notifications
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. Mobile: User Management UI
+  - [x] 6.1 Create IUserService and UserService
+    - Implement API calls for user CRUD
+    - _Requirements: 1.1, 1.2, 1.4, 1.5, 2.1_
+  - [x] 6.2 Create UsersPage and UsersViewModel
+    - List users with username, role, status
+    - Admin-only access check
+    - _Requirements: 1.1, 1.6_
+  - [x] 6.3 Create UserDetailPage for create/edit
+    - Form for username, password, role selection
+    - Validation feedback
+    - _Requirements: 1.2, 1.4, 2.3_
+  - [x] 6.4 Implement password reset flow
+    - Reset button on user detail
+    - Show temporary password or success message
+    - _Requirements: 2.1, 2.2_
+  - [ ]* 6.5 Write unit tests for UserService
+    - Test API call construction
+    - Test error handling
+    - _Requirements: 1.1-1.6, 2.1-2.5_
+
+- [x] 7. Mobile: Audit Log UI
+  - [x] 7.1 Create IAuditService and AuditService
+    - Implement API calls for audit logs
+    - _Requirements: 3.1-3.6, 4.1-4.4, 5.1-5.4_
+  - [x] 7.2 Create LoginLogsPage and LoginLogsViewModel
+    - Display login/logout history
+    - Filter by username and date range
+    - _Requirements: 3.1, 3.4, 3.6_
+  - [x] 7.3 Create PublishLogsPage and PublishLogsViewModel
+    - Display schedule publish history
+    - Filter by publisher and date range
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [x] 7.4 Create ViolationHistoryPage and ViolationHistoryViewModel
+    - Display violation history with trends
+    - Filter by employee, rule type, date range
+    - Acknowledge violations
+    - _Requirements: 5.1, 5.2, 5.3, 5.4_
+  - [ ]* 7.5 Write unit tests for AuditService
+    - Test filter query construction
+    - Test pagination handling
+    - _Requirements: 3.6, 4.3, 5.2_
+
+- [x] 8. Checkpoint - Mobile User & Audit UI
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 9. Mobile: Push Notification Handler
+  - [x] 9.1 Add Firebase and APNS NuGet packages
+    - Plugin.Firebase.CloudMessaging for Android
+    - Configure iOS entitlements
+    - _Requirements: 6.1, 7.1, 8.1_
+  - [x] 9.2 Implement IPushNotificationHandler
+    - RegisterDeviceAsync - send token to backend
+    - HandleNotificationReceived - show local notification
+    - HandleNotificationTapped - navigate to relevant page
+    - _Requirements: 6.3, 7.3_
+  - [x] 9.3 Create NotificationPreferencesPage
+    - Toggle switches for each notification type
+    - Reminder timing selection
+    - _Requirements: 6.4, 7.4, 8.4_
+  - [x] 9.4 Integrate push handler into App startup
+    - Request notification permissions
+    - Register device token on login
+    - _Requirements: 6.1, 7.1, 8.1_
+  - [ ]* 9.5 Write unit tests for notification preferences
+    - Test preference persistence
+    - Test preference loading
+    - _Requirements: 6.4, 7.4, 8.4_
+
+- [x] 10. Mobile: Offline Cache Module
+  - [x] 10.1 Add SQLite-net-pcl NuGet package
+    - Configure database path
+    - _Requirements: 9.1_
+  - [x] 10.2 Implement ICacheService with SQLite
+    - CacheScheduleAsync - serialize and store
+    - GetCachedScheduleAsync - retrieve and deserialize
+    - ClearOldCacheAsync - remove old entries
+    - _Requirements: 9.1, 9.4_
+  - [x] 10.3 Implement IConnectivityService
+    - Monitor network state changes
+    - Raise ConnectivityChanged event
+    - _Requirements: 9.2, 9.5, 10.5_
+  - [x] 10.4 Implement IOfflineModeService
+    - ExecuteWithOfflineSupportAsync - try online, fallback to cache
+    - ExecuteWriteOperationAsync - block if offline
+    - _Requirements: 9.2, 10.1, 10.2, 10.4_
+  - [ ]* 10.5 Write property test for cache round-trip
+    - **Property 14: Cache Scope** (partial)
+    - **Validates: Requirements 9.4**
+  - [ ]* 10.6 Write property test for offline write prevention
+    - **Property 16: Offline Write Prevention**
+    - **Validates: Requirements 10.2**
+
+- [x] 11. Mobile: Integrate Offline Mode
+  - [x] 11.1 Update SchedulesViewModel to use offline support
+    - Cache schedules after successful fetch
+    - Display cached data when offline
+    - _Requirements: 9.1, 9.2, 10.1_
+  - [x] 11.2 Add offline indicator to UI
+    - Show banner when offline
+    - Display last sync timestamp
+    - _Requirements: 9.3, 10.3_
+  - [x] 11.3 Implement auto-sync on reconnect
+    - Listen for connectivity changes
+    - Refresh cache when online
+    - _Requirements: 9.5, 10.6_
+  - [x] 11.4 Implement offline UX behavior
+    - Disable action buttons when offline (no modal alerts)
+    - Show non-blocking toast on write attempt
+    - Re-enable buttons when online
+    - _Requirements: 10.2, 10.4, 10.5_
+  - [ ]* 11.5 Write property test for offline read access
+    - **Property 15: Offline Read Access**
+    - **Validates: Requirements 9.2, 10.1**
+  - [ ]* 11.6 Write property test for auto-sync
+    - **Property 17: Auto-Sync on Reconnect**
+    - **Validates: Requirements 9.5, 10.6**
+
+- [x] 12. Final Checkpoint - All Features
+  - Ensure all tests pass, ask the user if questions arise.
+  - Verify all requirements are covered
+  - Test end-to-end flows
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- Backend tasks (1-5) can be developed in parallel with Mobile tasks (6-11)

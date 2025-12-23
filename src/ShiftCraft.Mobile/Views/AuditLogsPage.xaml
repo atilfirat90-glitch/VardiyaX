@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:services="clr-namespace:ShiftCraft.Mobile.Services"
+             x:Class="ShiftCraft.Mobile.Views.AuditLogsPage"
+             x:DataType="vm:AuditLogsViewModel"
+             Title="Denetim Günlükleri"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Tab Selector -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*" Padding="10" BackgroundColor="White">
+            <Button Text="Giriş" 
+                    BackgroundColor="{Binding SelectedTabIndex, Converter={StaticResource TabSelectedColorConverter}, ConverterParameter=0}"
+                    TextColor="{Binding SelectedTabIndex, Converter={StaticResource TabSelectedTextColorConverter}, ConverterParameter=0}"
+                    Command="{Binding ApplyFilterCommand}"
+                    Clicked="OnLoginTabClicked"
+                    CornerRadius="8"
+                    Margin="2"/>
+            <Button Grid.Column="1" 
+                    Text="Yayın" 
+                    BackgroundColor="{Binding SelectedTabIndex, Converter={StaticResource TabSelectedColorConverter}, ConverterParameter=1}"
+                    TextColor="{Binding SelectedTabIndex, Converter={StaticResource TabSelectedTextColorConverter}, ConverterParameter=1}"
+                    Command="{Binding ApplyFilterCommand}"
+                    Clicked="OnPublishTabClicked"
+                    CornerRadius="8"
+                    Margin="2"/>
+            <Button Grid.Column="2" 
+                    Text="İhlaller" 
+                    BackgroundColor="{Binding SelectedTabIndex, Converter={StaticResource TabSelectedColorConverter}, ConverterParameter=2}"
+                    TextColor="{Binding SelectedTabIndex, Converter={StaticResource TabSelectedTextColorConverter}, ConverterParameter=2}"
+                    Command="{Binding ApplyFilterCommand}"
+                    Clicked="OnViolationsTabClicked"
+                    CornerRadius="8"
+                    Margin="2"/>
+        </Grid>
+
+        <!-- Filter Section -->
+        <Frame Grid.Row="1" Margin="10,5" Padding="10" CornerRadius="8" BackgroundColor="White">
+            <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
+                <DatePicker Grid.Column="0" 
+                            Date="{Binding FilterFrom}"
+                            MinimumDate="2020-01-01"
+                            MaximumDate="{Binding FilterTo}"
+                            FontSize="12"/>
+                <DatePicker Grid.Column="1" 
+                            Date="{Binding FilterTo}"
+                            MinimumDate="{Binding FilterFrom}"
+                            FontSize="12"/>
+                <Button Grid.Column="2" 
+                        Text="🔍"
+                        Command="{Binding ApplyFilterCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        WidthRequest="45"
+                        HeightRequest="35"
+                        CornerRadius="8"/>
+            </Grid>
+        </Frame>
+
+        <!-- Content Area -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefreshCommand}"
+                     RefreshColor="{StaticResource Primary}">
+            <Grid>
+                <!-- Login Logs -->
+                <CollectionView ItemsSource="{Binding LoginLogs}"
+                                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource TabVisibilityConverter}, ConverterParameter=0}"
+                                RemainingItemsThreshold="5"
+                                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="services:LoginLogDto">
+                            <Frame Margin="10,5" Padding="12" CornerRadius="8" BackgroundColor="White">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <Frame Grid.Column="0"
+                                           BackgroundColor="{Binding Action, Converter={StaticResource LoginActionColorConverter}}"
+                                           CornerRadius="20"
+                                           HeightRequest="40"
+                                           WidthRequest="40"
+                                           Padding="0">
+                                        <Label Text="{Binding Action, Converter={StaticResource LoginActionIconConverter}}"
+                                               FontSize="18"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Frame>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Username}" FontSize="14" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Action}" FontSize="12" TextColor="{StaticResource Gray600}"/>
+                                        <Label Text="{Binding Timestamp, StringFormat='{0:dd.MM.yyyy HH:mm}'}" 
+                                               FontSize="11" TextColor="{StaticResource Gray500}"/>
+                                        <Label Text="{Binding FailureReason}" 
+                                               FontSize="11" 
+                                               TextColor="#C62828"
+                                               IsVisible="{Binding FailureReason, Converter={StaticResource StringToBoolConverter}}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                            <Label Text="📋" FontSize="48" HorizontalOptions="Center"/>
+                            <Label Text="Giriş kaydı bulunamadı" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <!-- Publish Logs -->
+                <CollectionView ItemsSource="{Binding PublishLogs}"
+                                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource TabVisibilityConverter}, ConverterParameter=1}"
+                                RemainingItemsThreshold="5"
+                                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="services:PublishLogDto">
+                            <Frame Margin="10,5" Padding="12" CornerRadius="8" BackgroundColor="White">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <Frame Grid.Column="0"
+                                           BackgroundColor="#4CAF50"
+                                           CornerRadius="20"
+                                           HeightRequest="40"
+                                           WidthRequest="40"
+                                           Padding="0">
+                                        <Label Text="📤" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Frame>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding PublisherUsername}" FontSize="14" FontAttributes="Bold"/>
+                                        <Label Text="{Binding WeekStartDate, StringFormat='Hafta: {0:dd.MM.yyyy}'}" 
+                                               FontSize="12" TextColor="{StaticResource Gray600}"/>
+                                        <Label Text="{Binding AffectedEmployeeCount, StringFormat='{0} çalışan etkilendi'}" 
+                                               FontSize="11" TextColor="{StaticResource Gray500}"/>
+                                        <Label Text="{Binding Timestamp, StringFormat='{0:dd.MM.yyyy HH:mm}'}" 
+                                               FontSize="11" TextColor="{StaticResource Gray400}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                            <Label Text="📤" FontSize="48" HorizontalOptions="Center"/>
+                            <Label Text="Yayın kaydı bulunamadı" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <!-- Violation Logs -->
+                <CollectionView ItemsSource="{Binding ViolationLogs}"
+                                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource TabVisibilityConverter}, ConverterParameter=2}"
+                                RemainingItemsThreshold="5"
+                                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="services:ViolationLogDto">
+                            <Frame Margin="10,5" Padding="12" CornerRadius="8" BackgroundColor="White">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Frame Grid.Column="0"
+                                           BackgroundColor="{Binding Severity, Converter={StaticResource SeverityColorConverter}}"
+                                           CornerRadius="20"
+                                           HeightRequest="40"
+                                           WidthRequest="40"
+                                           Padding="0">
+                                        <Label Text="{Binding Severity, Converter={StaticResource SeverityIconConverter}}"
+                                               FontSize="18"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Frame>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding EmployeeName}" FontSize="14" FontAttributes="Bold"/>
+                                        <Label Text="{Binding RuleType}" FontSize="12" TextColor="{StaticResource Gray600}"/>
+                                        <Label Text="{Binding Message}" FontSize="11" TextColor="{StaticResource Gray500}" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding ViolationDate, StringFormat='{0:dd.MM.yyyy}'}" 
+                                               FontSize="11" TextColor="{StaticResource Gray400}"/>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2"
+                                            Text="{Binding IsAcknowledged, Converter={StaticResource AcknowledgedTextConverter}}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuditLogsViewModel}}, Path=AcknowledgeCommand}"
+                                            CommandParameter="{Binding .}"
+                                            IsEnabled="{Binding IsAcknowledged, Converter={StaticResource InverseBoolConverter}}"
+                                            BackgroundColor="{Binding IsAcknowledged, Converter={StaticResource AcknowledgedColorConverter}}"
+                                            TextColor="White"
+                                            FontSize="10"
+                                            HeightRequest="30"
+                                            CornerRadius="8"
+                                            VerticalOptions="Center"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                            <Label Text="⚠️" FontSize="48" HorizontalOptions="Center"/>
+                            <Label Text="İhlal kaydı bulunamadı" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </Grid>
+        </RefreshView>
+
+        <!-- Error Message -->
+        <Frame Grid.Row="2"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+               BackgroundColor="#FFEBEE"
+               CornerRadius="8"
+               Margin="15"
+               Padding="15"
+               VerticalOptions="Start">
+            <Label Text="{Binding ErrorMessage}" TextColor="#C62828" FontSize="14"/>
+        </Frame>
+    </Grid>
+</ContentPage>
