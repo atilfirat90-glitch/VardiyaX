@@ -19,6 +19,8 @@ public class UserDto
     public bool MustChangePassword { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastLoginAt { get; set; }
+    public int? BusinessId { get; set; }
+    public string? BusinessName { get; set; }
 }
 
 public class CreateUserRequest

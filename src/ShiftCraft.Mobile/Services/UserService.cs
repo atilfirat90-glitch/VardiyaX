@@ -1,101 +1,47 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-
 namespace ShiftCraft.Mobile.Services;
 
+/// <summary>
+/// v1.1: Refactored to use IApiClient for centralized HTTP handling.
+/// </summary>
 public class UserService : IUserService
 {
-    private readonly HttpClient _httpClient;
-    private readonly IAuthService _authService;
+    private readonly IApiClient _apiClient;
 
-    public UserService(HttpClient httpClient, IAuthService authService)
+    public UserService(IApiClient apiClient)
     {
-        _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(ApiSettings.BaseUrl);
-        _authService = authService;
-    }
-
-    private void SetAuthHeader()
-    {
-        if (_authService.IsAuthenticated)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _authService.Token);
-        }
-    }
-
-    private async Task HandleResponse(HttpResponseMessage response)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    throw new UnauthorizedAccessException("Oturum süresi doldu.");
-                case HttpStatusCode.Forbidden:
-                    throw new Exception("Bu işlem için yetkiniz yok.");
-                case HttpStatusCode.NotFound:
-                    throw new Exception("Kullanıcı bulunamadı.");
-                case HttpStatusCode.Conflict:
-                    throw new Exception("Bu kullanıcı adı zaten kullanılıyor.");
-                case HttpStatusCode.BadRequest:
-                    throw new Exception(content.Contains("password") 
-                        ? "Şifre en az 8 karakter ve 1 rakam içermelidir." 
-                        : "Geçersiz istek.");
-                default:
-                    throw new Exception($"Hata: {response.StatusCode}");
-            }
-        }
+        _apiClient = apiClient;
     }
 
     public async Task<List<UserDto>> GetUsersAsync()
     {
-        SetAuthHeader();
-        var response = await _httpClient.GetAsync("user");
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<List<UserDto>>() ?? new List<UserDto>();
+        return await _apiClient.GetAsync<List<UserDto>>("user") ?? new List<UserDto>();
     }
 
     public async Task<UserDto> GetUserAsync(int id)
     {
-        SetAuthHeader();
-        var response = await _httpClient.GetAsync($"user/{id}");
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<UserDto>() 
-            ?? throw new Exception("Kullanıcı bulunamadı.");
+        return await _apiClient.GetAsync<UserDto>($"user/{id}") 
+            ?? throw new ApiException("Kullanıcı bulunamadı.", 404);
     }
 
     public async Task<UserDto> CreateUserAsync(CreateUserRequest request)
     {
-        SetAuthHeader();
-        var response = await _httpClient.PostAsJsonAsync("user", request);
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<UserDto>()
-            ?? throw new Exception("Kullanıcı oluşturulamadı.");
+        return await _apiClient.PostAsync<UserDto>("user", request)
+            ?? throw new ApiException("Kullanıcı oluşturulamadı.", 500);
     }
 
     public async Task UpdateUserAsync(int id, UpdateUserRequest request)
     {
-        SetAuthHeader();
-        var response = await _httpClient.PutAsJsonAsync($"user/{id}", request);
-        await HandleResponse(response);
+        await _apiClient.PutAsync($"user/{id}", request);
     }
 
     public async Task DeactivateUserAsync(int id)
     {
-        SetAuthHeader();
-        var response = await _httpClient.DeleteAsync($"user/{id}");
-        await HandleResponse(response);
+        await _apiClient.DeleteAsync($"user/{id}");
     }
 
     public async Task<string> ResetPasswordAsync(int id)
     {
-        SetAuthHeader();
-        var response = await _httpClient.PostAsync($"user/{id}/reset-password", null);
-        await HandleResponse(response);
-        var result = await response.Content.ReadFromJsonAsync<ResetPasswordResponse>();
+        var result = await _apiClient.PostAsync<ResetPasswordResponse>($"user/{id}/reset-password");
         return result?.TemporaryPassword ?? "Şifre sıfırlandı";
     }
 }

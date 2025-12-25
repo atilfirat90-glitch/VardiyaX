@@ -1,34 +1,20 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-
 namespace ShiftCraft.Mobile.Services;
 
+/// <summary>
+/// v1.1: Refactored to use IApiClient for centralized HTTP handling.
+/// </summary>
 public class PushNotificationHandler : IPushNotificationHandler
 {
-    private readonly HttpClient _httpClient;
-    private readonly IAuthService _authService;
+    private readonly IApiClient _apiClient;
     private const string PreferencesKey = "notification_preferences";
 
-    public PushNotificationHandler(HttpClient httpClient, IAuthService authService)
+    public PushNotificationHandler(IApiClient apiClient)
     {
-        _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(ApiSettings.BaseUrl);
-        _authService = authService;
-    }
-
-    private void SetAuthHeader()
-    {
-        if (_authService.IsAuthenticated)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _authService.Token);
-        }
+        _apiClient = apiClient;
     }
 
     public async Task RegisterDeviceAsync(string deviceToken)
     {
-        SetAuthHeader();
-        
         var platform = DeviceInfo.Platform.ToString();
         var request = new DeviceRegistrationRequest
         {
@@ -38,8 +24,7 @@ public class PushNotificationHandler : IPushNotificationHandler
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("notification/device", request);
-            response.EnsureSuccessStatusCode();
+            await _apiClient.PostAsync("notification/device", request);
             
             // Store token locally
             await SecureStorage.SetAsync("device_token", deviceToken);
@@ -52,14 +37,12 @@ public class PushNotificationHandler : IPushNotificationHandler
 
     public async Task UnregisterDeviceAsync()
     {
-        SetAuthHeader();
-        
         try
         {
             var token = await SecureStorage.GetAsync("device_token");
             if (!string.IsNullOrEmpty(token))
             {
-                await _httpClient.DeleteAsync($"notification/device/{token}");
+                await _apiClient.DeleteAsync($"notification/device/{token}");
                 SecureStorage.Remove("device_token");
             }
         }
@@ -90,8 +73,6 @@ public class PushNotificationHandler : IPushNotificationHandler
 
     public async Task UpdatePreferencesAsync(NotificationPreferences preferences)
     {
-        SetAuthHeader();
-        
         try
         {
             // Save locally
@@ -99,7 +80,7 @@ public class PushNotificationHandler : IPushNotificationHandler
             await SecureStorage.SetAsync(PreferencesKey, json);
             
             // Sync to server
-            await _httpClient.PutAsJsonAsync("notification/preferences", preferences);
+            await _apiClient.PutAsync("notification/preferences", preferences);
         }
         catch (Exception ex)
         {

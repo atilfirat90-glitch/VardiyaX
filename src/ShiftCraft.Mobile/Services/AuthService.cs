@@ -8,6 +8,7 @@ namespace ShiftCraft.Mobile.Services;
 public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
+    private readonly string _baseUrl;
     private string? _token;
     private string? _username;
     private string? _role;
@@ -16,7 +17,8 @@ public class AuthService : IAuthService
     public AuthService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(ApiSettings.BaseUrl);
+        _baseUrl = ApiSettings.BaseUrl;
+        // v1.1: Removed BaseAddress assignment - using full URL pattern
     }
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(_token) && _tokenExpiry > DateTime.UtcNow;
@@ -32,12 +34,12 @@ public class AuthService : IAuthService
         {
             var request = new LoginRequest { Username = username, Password = password };
             
-            // Debug: Log the full URL being called
-            var fullUrl = new Uri(_httpClient.BaseAddress!, ApiSettings.Endpoints.Login);
-            System.Diagnostics.Debug.WriteLine($"[AuthService] POST to: {fullUrl}");
+            // v1.1: Using full URL pattern for consistency
+            var loginUrl = $"{_baseUrl}{ApiSettings.Endpoints.Login}";
+            System.Diagnostics.Debug.WriteLine($"[AuthService] POST to: {loginUrl}");
             System.Diagnostics.Debug.WriteLine($"[AuthService] Username: {username}");
             
-            var response = await _httpClient.PostAsJsonAsync(ApiSettings.Endpoints.Login, request);
+            var response = await _httpClient.PostAsJsonAsync(loginUrl, request);
             
             // Debug: Log response status
             System.Diagnostics.Debug.WriteLine($"[AuthService] Response Status: {response.StatusCode}");

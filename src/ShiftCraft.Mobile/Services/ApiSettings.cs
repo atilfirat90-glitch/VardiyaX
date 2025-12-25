@@ -2,6 +2,7 @@ namespace ShiftCraft.Mobile.Services;
 
 public static class ApiSettings
 {
+    // Production Azure API
     public const string BaseUrl = "https://shiftcraft-api-prod.azurewebsites.net/api/v1/";
     
     public static class Endpoints

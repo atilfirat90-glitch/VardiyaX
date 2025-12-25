@@ -1,45 +1,17 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Web;
 
 namespace ShiftCraft.Mobile.Services;
 
+/// <summary>
+/// v1.1: Refactored to use IApiClient for centralized HTTP handling.
+/// </summary>
 public class AuditService : IAuditService
 {
-    private readonly HttpClient _httpClient;
-    private readonly IAuthService _authService;
+    private readonly IApiClient _apiClient;
 
-    public AuditService(HttpClient httpClient, IAuthService authService)
+    public AuditService(IApiClient apiClient)
     {
-        _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(ApiSettings.BaseUrl);
-        _authService = authService;
-    }
-
-    private void SetAuthHeader()
-    {
-        if (_authService.IsAuthenticated)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _authService.Token);
-        }
-    }
-
-    private async Task HandleResponse(HttpResponseMessage response)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    throw new UnauthorizedAccessException("Oturum süresi doldu.");
-                case HttpStatusCode.Forbidden:
-                    throw new Exception("Bu işlem için yetkiniz yok.");
-                default:
-                    throw new Exception($"Hata: {response.StatusCode}");
-            }
-        }
+        _apiClient = apiClient;
     }
 
     private string BuildQueryString(Dictionary<string, string?> parameters)
@@ -54,7 +26,6 @@ public class AuditService : IAuditService
 
     public async Task<PagedResult<LoginLogDto>> GetLoginLogsAsync(LoginLogFilter filter)
     {
-        SetAuthHeader();
         var queryParams = new Dictionary<string, string?>
         {
             ["username"] = filter.Username,
@@ -64,17 +35,14 @@ public class AuditService : IAuditService
             ["pageSize"] = filter.PageSize.ToString()
         };
         var query = BuildQueryString(queryParams);
-        var url = string.IsNullOrEmpty(query) ? "audit/login" : $"audit/login?{query}";
+        var endpoint = string.IsNullOrEmpty(query) ? "audit/login" : $"audit/login?{query}";
         
-        var response = await _httpClient.GetAsync(url);
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<PagedResult<LoginLogDto>>() 
+        return await _apiClient.GetAsync<PagedResult<LoginLogDto>>(endpoint) 
             ?? new PagedResult<LoginLogDto>();
     }
 
     public async Task<PagedResult<PublishLogDto>> GetPublishLogsAsync(PublishLogFilter filter)
     {
-        SetAuthHeader();
         var queryParams = new Dictionary<string, string?>
         {
             ["publisher"] = filter.Publisher,
@@ -84,17 +52,14 @@ public class AuditService : IAuditService
             ["pageSize"] = filter.PageSize.ToString()
         };
         var query = BuildQueryString(queryParams);
-        var url = string.IsNullOrEmpty(query) ? "audit/publish" : $"audit/publish?{query}";
+        var endpoint = string.IsNullOrEmpty(query) ? "audit/publish" : $"audit/publish?{query}";
         
-        var response = await _httpClient.GetAsync(url);
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<PagedResult<PublishLogDto>>() 
+        return await _apiClient.GetAsync<PagedResult<PublishLogDto>>(endpoint) 
             ?? new PagedResult<PublishLogDto>();
     }
 
     public async Task<PagedResult<ViolationLogDto>> GetViolationHistoryAsync(ViolationFilter filter)
     {
-        SetAuthHeader();
         var queryParams = new Dictionary<string, string?>
         {
             ["employeeId"] = filter.EmployeeId?.ToString(),
@@ -105,29 +70,21 @@ public class AuditService : IAuditService
             ["pageSize"] = filter.PageSize.ToString()
         };
         var query = BuildQueryString(queryParams);
-        var url = string.IsNullOrEmpty(query) ? "audit/violations" : $"audit/violations?{query}";
+        var endpoint = string.IsNullOrEmpty(query) ? "audit/violations" : $"audit/violations?{query}";
         
-        var response = await _httpClient.GetAsync(url);
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<PagedResult<ViolationLogDto>>() 
+        return await _apiClient.GetAsync<PagedResult<ViolationLogDto>>(endpoint) 
             ?? new PagedResult<ViolationLogDto>();
     }
 
     public async Task<ViolationTrendsDto> GetViolationTrendsAsync(DateTime from, DateTime to)
     {
-        SetAuthHeader();
-        var url = $"audit/violations/trends?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}";
-        
-        var response = await _httpClient.GetAsync(url);
-        await HandleResponse(response);
-        return await response.Content.ReadFromJsonAsync<ViolationTrendsDto>() 
+        var endpoint = $"audit/violations/trends?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}";
+        return await _apiClient.GetAsync<ViolationTrendsDto>(endpoint) 
             ?? new ViolationTrendsDto();
     }
 
     public async Task AcknowledgeViolationAsync(int violationId)
     {
-        SetAuthHeader();
-        var response = await _httpClient.PostAsync($"audit/violations/{violationId}/acknowledge", null);
-        await HandleResponse(response);
+        await _apiClient.PostAsync($"audit/violations/{violationId}/acknowledge");
     }
 }

@@ -1,131 +1,109 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using ShiftCraft.Mobile.Models;
 
 namespace ShiftCraft.Mobile.Services;
 
+/// <summary>
+/// v1.1: Refactored to use IApiClient for centralized HTTP handling.
+/// </summary>
 public class ApiService : IApiService
 {
-    private readonly HttpClient _httpClient;
-    private readonly IAuthService _authService;
+    private readonly IApiClient _apiClient;
 
-    public ApiService(HttpClient httpClient, IAuthService authService)
+    public ApiService(IApiClient apiClient)
     {
-        _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(ApiSettings.BaseUrl);
-        _httpClient.Timeout = TimeSpan.FromSeconds(30);
-        _authService = authService;
-    }
-
-    private async Task<T> ExecuteWithErrorHandling<T>(Func<Task<T>> action, T defaultValue)
-    {
-        try
-        {
-            // Check token expiry
-            if (_authService.IsTokenExpired())
-            {
-                throw new UnauthorizedAccessException("Oturum süresi doldu. Lütfen tekrar giriş yapın.");
-            }
-
-            SetAuthHeader();
-            return await action();
-        }
-        catch (HttpRequestException ex)
-        {
-            throw new Exception($"Sunucuya bağlanılamadı: {ex.Message}");
-        }
-        catch (TaskCanceledException)
-        {
-            throw new Exception("İstek zaman aşımına uğradı. Lütfen tekrar deneyin.");
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // Token expired - trigger logout
-            await _authService.LogoutAsync();
-            await Shell.Current.GoToAsync("//login");
-            throw;
-        }
-    }
-
-    private void SetAuthHeader()
-    {
-        if (_authService.IsAuthenticated)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization = 
-                new AuthenticationHeaderValue("Bearer", _authService.Token);
-        }
-    }
-
-    private async Task HandleResponse(HttpResponseMessage response)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    await _authService.LogoutAsync();
-                    await Shell.Current.GoToAsync("//login");
-                    throw new UnauthorizedAccessException("Oturum süresi doldu.");
-                case HttpStatusCode.Forbidden:
-                    throw new Exception("Bu işlem için yetkiniz yok.");
-                case HttpStatusCode.NotFound:
-                    throw new Exception("Kayıt bulunamadı.");
-                case HttpStatusCode.InternalServerError:
-                    throw new Exception("Sunucu hatası. Lütfen daha sonra tekrar deneyin.");
-                default:
-                    throw new Exception($"Hata: {response.StatusCode}");
-            }
-        }
+        _apiClient = apiClient;
     }
 
     public async Task<List<Employee>> GetEmployeesAsync()
     {
-        return await ExecuteWithErrorHandling(async () =>
+        try
         {
-            var response = await _httpClient.GetAsync(ApiSettings.Endpoints.Employees);
-            await HandleResponse(response);
-            return await response.Content.ReadFromJsonAsync<List<Employee>>() ?? new List<Employee>();
-        }, new List<Employee>());
+            return await _apiClient.GetAsync<List<Employee>>(ApiSettings.Endpoints.Employees) 
+                ?? new List<Employee>();
+        }
+        catch (ApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Çalışanlar yüklenemedi: {ex.Message}");
+        }
     }
 
     public async Task<List<WeeklySchedule>> GetWeeklySchedulesAsync()
     {
-        return await ExecuteWithErrorHandling(async () =>
+        try
         {
-            var response = await _httpClient.GetAsync(ApiSettings.Endpoints.WeeklySchedules);
-            await HandleResponse(response);
-            return await response.Content.ReadFromJsonAsync<List<WeeklySchedule>>() ?? new List<WeeklySchedule>();
-        }, new List<WeeklySchedule>());
+            return await _apiClient.GetAsync<List<WeeklySchedule>>(ApiSettings.Endpoints.WeeklySchedules) 
+                ?? new List<WeeklySchedule>();
+        }
+        catch (ApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Vardiyalar yüklenemedi: {ex.Message}");
+        }
     }
 
     public async Task<WeeklySchedule?> GetWeeklyScheduleAsync(int id)
     {
-        return await ExecuteWithErrorHandling(async () =>
+        try
         {
-            var response = await _httpClient.GetAsync($"{ApiSettings.Endpoints.WeeklySchedules}/{id}");
-            await HandleResponse(response);
-            return await response.Content.ReadFromJsonAsync<WeeklySchedule>();
-        }, null);
+            return await _apiClient.GetAsync<WeeklySchedule>($"{ApiSettings.Endpoints.WeeklySchedules}/{id}");
+        }
+        catch (ApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Vardiya yüklenemedi: {ex.Message}");
+        }
     }
 
     public async Task<List<RuleViolation>> PublishScheduleAsync(int scheduleId)
     {
-        return await ExecuteWithErrorHandling(async () =>
+        try
         {
-            var response = await _httpClient.PostAsync($"{ApiSettings.Endpoints.WeeklySchedules}/{scheduleId}/publish", null);
-            await HandleResponse(response);
-            return await response.Content.ReadFromJsonAsync<List<RuleViolation>>() ?? new List<RuleViolation>();
-        }, new List<RuleViolation>());
+            return await _apiClient.PostAsync<List<RuleViolation>>(
+                $"{ApiSettings.Endpoints.WeeklySchedules}/{scheduleId}/publish") 
+                ?? new List<RuleViolation>();
+        }
+        catch (ApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Vardiya yayınlanamadı: {ex.Message}");
+        }
     }
 
     public async Task<List<RuleViolation>> GetRuleViolationsAsync()
     {
-        return await ExecuteWithErrorHandling(async () =>
+        try
         {
-            var response = await _httpClient.GetAsync(ApiSettings.Endpoints.RuleViolations);
-            await HandleResponse(response);
-            return await response.Content.ReadFromJsonAsync<List<RuleViolation>>() ?? new List<RuleViolation>();
-        }, new List<RuleViolation>());
+            // API returns { value: [...], Count: n } format
+            var wrapper = await _apiClient.GetAsync<ApiListResponse<RuleViolation>>(ApiSettings.Endpoints.RuleViolations);
+            return wrapper?.Value ?? new List<RuleViolation>();
+        }
+        catch (ApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"İhlaller yüklenemedi: {ex.Message}");
+        }
     }
+}
+
+// Wrapper class for API list responses
+public class ApiListResponse<T>
+{
+    public List<T> Value { get; set; } = new();
+    public int Count { get; set; }
 }
