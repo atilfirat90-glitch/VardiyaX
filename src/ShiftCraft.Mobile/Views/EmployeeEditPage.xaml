@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             x:Class="ShiftCraft.Mobile.Views.EmployeeEditPage"
+             x:DataType="vm:EmployeeEditViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource Gray100}">
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            
+            <!-- Name Field -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Ad Soyad" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Gray600}"/>
+                    <Entry Text="{Binding Name}" 
+                           Placeholder="Çalışan adını girin"
+                           FontSize="16"
+                           ClearButtonVisibility="WhileEditing"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- Active Status (only in edit mode) -->
+            <Frame BackgroundColor="White" 
+                   Padding="15" 
+                   CornerRadius="10" 
+                   HasShadow="True"
+                   IsVisible="{Binding IsEditMode}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="Durum" 
+                               FontSize="14" 
+                               TextColor="{StaticResource Gray600}"/>
+                        <Label Text="{Binding IsActive, Converter={StaticResource ActiveStatusTextConverter}}" 
+                               FontSize="16"
+                               TextColor="{Binding IsActive, Converter={StaticResource ActiveStatusColorConverter}}"/>
+                    </VerticalStackLayout>
+                    <Switch Grid.Column="1" 
+                            IsToggled="{Binding IsActive}"
+                            OnColor="{StaticResource Primary}"
+                            VerticalOptions="Center"/>
+                </Grid>
+            </Frame>
+            
+            <!-- Error Message -->
+            <Frame BackgroundColor="#FFEBEE" 
+                   BorderColor="#EF5350"
+                   Padding="15" 
+                   CornerRadius="8"
+                   IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" 
+                       TextColor="#C62828"/>
+            </Frame>
+            
+            <!-- Save Button -->
+            <Button Text="{Binding IsEditMode, Converter={StaticResource EditModeToButtonTextConverter}}"
+                    Command="{Binding SaveCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    CornerRadius="10"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"/>
+            
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               HeightRequest="40"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

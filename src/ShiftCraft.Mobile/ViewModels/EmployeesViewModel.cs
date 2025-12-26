@@ -50,12 +50,17 @@ public class EmployeesViewModel : BaseViewModel
         }
         catch (UnauthorizedAccessException)
         {
-            // Already handled by ApiService
+            await Shell.Current.GoToAsync("//login");
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[EmployeesViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
-            await Shell.Current.DisplayAlert("Hata", ex.Message, "Tamam");
+            System.Diagnostics.Debug.WriteLine($"[EmployeesViewModel] Load error: {ex}");
+            ErrorMessage = "Çalışanlar yüklenirken hata oluştu";
         }
         finally
         {

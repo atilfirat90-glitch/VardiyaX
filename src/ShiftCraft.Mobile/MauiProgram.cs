@@ -23,6 +23,9 @@ public static class MauiProgram
         // HttpClient with timeout
         builder.Services.AddSingleton(sp => new HttpClient { Timeout = TimeSpan.FromSeconds(30) });
         
+        // v1.1: Centralized API Client
+        builder.Services.AddSingleton<IApiClient, ApiClient>();
+        
         // Services (Singleton for auth state)
         builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddSingleton<IApiService, ApiService>();
@@ -32,6 +35,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICacheService, CacheService>();
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
         builder.Services.AddSingleton<IOfflineModeService, OfflineModeService>();
+        builder.Services.AddSingleton<IToastService, ToastService>();
+        
+        // v1.2: Employee Management Service
+        builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
         
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
@@ -43,6 +50,10 @@ public static class MauiProgram
         builder.Services.AddTransient<AuditLogsViewModel>();
         builder.Services.AddTransient<NotificationPreferencesViewModel>();
         
+        // v1.2: Employee Management ViewModels
+        builder.Services.AddTransient<EmployeeManageViewModel>();
+        builder.Services.AddTransient<EmployeeEditViewModel>();
+        
         // Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<EmployeesPage>();
@@ -52,6 +63,10 @@ public static class MauiProgram
         builder.Services.AddTransient<UserDetailPage>();
         builder.Services.AddTransient<AuditLogsPage>();
         builder.Services.AddTransient<NotificationPreferencesPage>();
+        
+        // v1.2: Employee Management Pages
+        builder.Services.AddTransient<EmployeeManagePage>();
+        builder.Services.AddTransient<EmployeeEditPage>();
         
         // Shell
         builder.Services.AddSingleton<AppShell>();

@@ -45,12 +45,17 @@ public class ViolationsViewModel : BaseViewModel
         }
         catch (UnauthorizedAccessException)
         {
-            // Already handled by ApiService
+            await Shell.Current.GoToAsync("//login");
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ViolationsViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
-            await Shell.Current.DisplayAlert("Hata", ex.Message, "Tamam");
+            System.Diagnostics.Debug.WriteLine($"[ViolationsViewModel] Load error: {ex}");
+            ErrorMessage = "İhlaller yüklenirken hata oluştu";
         }
         finally
         {

@@ -1,4 +1,5 @@
 using ShiftCraft.Mobile.ViewModels;
+using ShiftCraft.Mobile.Helpers;
 
 namespace ShiftCraft.Mobile.Views;
 
@@ -12,9 +13,22 @@ public partial class LoginPage : ContentPage
         BindingContext = _viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InitializeAsync();
+        LoadDataSafeAsync().SafeFireAndForgetAsync(ex => 
+            System.Diagnostics.Debug.WriteLine($"[LoginPage] OnAppearing error: {ex}"));
+    }
+
+    private async Task LoadDataSafeAsync()
+    {
+        try
+        {
+            await _viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[LoginPage] Initialize error: {ex}");
+        }
     }
 }

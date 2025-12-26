@@ -1,4 +1,5 @@
 using ShiftCraft.Mobile.ViewModels;
+using ShiftCraft.Mobile.Helpers;
 
 namespace ShiftCraft.Mobile.Views;
 
@@ -12,9 +13,23 @@ public partial class NotificationPreferencesPage : ContentPage
         BindingContext = _viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadPreferencesAsync();
+        LoadDataSafeAsync().SafeFireAndForgetAsync(ex => 
+            System.Diagnostics.Debug.WriteLine($"[NotificationPreferencesPage] OnAppearing error: {ex}"));
+    }
+
+    private async Task LoadDataSafeAsync()
+    {
+        try
+        {
+            await _viewModel.LoadPreferencesAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[NotificationPreferencesPage] Load error: {ex}");
+            _viewModel.ErrorMessage = "Bildirim ayarları yüklenirken hata oluştu";
+        }
     }
 }

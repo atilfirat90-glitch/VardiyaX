@@ -57,7 +57,7 @@ public class UserController : ControllerBase
 
         var user = await _userRepository.GetByIdAsync(id, cancellationToken);
         if (user == null)
-            return NotFound(new { message = "User not found" });
+            return NotFound(new { message = "Kullanıcı bulunamadı" });
 
         var businessId = GetCurrentUserBusinessId();
         if (businessId != null && user.BusinessId != businessId)
@@ -74,7 +74,11 @@ public class UserController : ControllerBase
 
         // Validate username uniqueness
         if (await _userRepository.UsernameExistsAsync(request.Username, cancellationToken))
-            return BadRequest(new { code = "USERNAME_EXISTS", message = "Username already exists" });
+            return Conflict(new { code = "USERNAME_EXISTS", message = "Kullanıcı adı zaten mevcut" });
+
+        // Validate password length
+        if (string.IsNullOrEmpty(request.Password) || request.Password.Length < 5)
+            return BadRequest(new { code = "INVALID_PASSWORD", message = "Şifre en az 5 karakter olmalı" });
 
         // Validate password
         var passwordValidation = _passwordService.ValidatePassword(request.Password);
@@ -83,7 +87,7 @@ public class UserController : ControllerBase
 
         // Validate role
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
-            return BadRequest(new { code = "INVALID_ROLE", message = "Invalid role. Valid roles: Admin, Manager, Worker, Trainee" });
+            return BadRequest(new { code = "INVALID_ROLE", message = "Geçersiz rol. Geçerli roller: Admin, Manager, Worker, Trainee" });
 
         var businessId = request.BusinessId ?? GetCurrentUserBusinessId();
 
@@ -112,7 +116,7 @@ public class UserController : ControllerBase
 
         var user = await _userRepository.GetByIdAsync(id, cancellationToken);
         if (user == null)
-            return NotFound(new { message = "User not found" });
+            return NotFound(new { message = "Kullanıcı bulunamadı" });
 
         var businessId = GetCurrentUserBusinessId();
         if (businessId != null && user.BusinessId != businessId)
@@ -121,7 +125,7 @@ public class UserController : ControllerBase
         if (request.Role != null)
         {
             if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
-                return BadRequest(new { code = "INVALID_ROLE", message = "Invalid role" });
+                return BadRequest(new { code = "INVALID_ROLE", message = "Geçersiz rol" });
             user.Role = role;
         }
 
@@ -142,7 +146,7 @@ public class UserController : ControllerBase
 
         var user = await _userRepository.GetByIdAsync(id, cancellationToken);
         if (user == null)
-            return NotFound(new { message = "User not found" });
+            return NotFound(new { message = "Kullanıcı bulunamadı" });
 
         var businessId = GetCurrentUserBusinessId();
         if (businessId != null && user.BusinessId != businessId)
@@ -151,7 +155,7 @@ public class UserController : ControllerBase
         // Don't allow deactivating yourself
         var currentUsername = User.Identity?.Name;
         if (user.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
-            return BadRequest(new { message = "Cannot deactivate your own account" });
+            return BadRequest(new { message = "Kendi hesabınızı devre dışı bırakamazsınız" });
 
         user.IsActive = false;
         await _userRepository.UpdateAsync(user, cancellationToken);
@@ -168,7 +172,7 @@ public class UserController : ControllerBase
 
         var user = await _userRepository.GetByIdAsync(id, cancellationToken);
         if (user == null)
-            return NotFound(new { message = "User not found" });
+            return NotFound(new { message = "Kullanıcı bulunamadı" });
 
         var businessId = GetCurrentUserBusinessId();
         if (businessId != null && user.BusinessId != businessId)
@@ -184,7 +188,7 @@ public class UserController : ControllerBase
         return Ok(new ResetPasswordResponse
         {
             TemporaryPassword = temporaryPassword,
-            Message = "Password has been reset. User must change password on next login."
+            Message = "Şifre sıfırlandı. Kullanıcı bir sonraki girişte şifresini değiştirmeli."
         });
     }
 

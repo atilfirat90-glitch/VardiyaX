@@ -10,6 +10,7 @@ public class LoginViewModel : BaseViewModel
     private string _password = string.Empty;
     private string _errorMessage = string.Empty;
     private bool _isOffline;
+    private bool _isPasswordVisible;
 
     public LoginViewModel(IAuthService authService)
     {
@@ -17,6 +18,7 @@ public class LoginViewModel : BaseViewModel
         Title = "Giriş";
         LoginCommand = new Command(async () => await LoginAsync());
         CheckConnectivityCommand = new Command(async () => await CheckConnectivityAsync());
+        TogglePasswordVisibilityCommand = new Command(() => IsPasswordVisible = !IsPasswordVisible);
     }
 
     public string Username
@@ -43,8 +45,15 @@ public class LoginViewModel : BaseViewModel
         set => SetProperty(ref _isOffline, value);
     }
 
+    public bool IsPasswordVisible
+    {
+        get => _isPasswordVisible;
+        set => SetProperty(ref _isPasswordVisible, value);
+    }
+
     public ICommand LoginCommand { get; }
     public ICommand CheckConnectivityCommand { get; }
+    public ICommand TogglePasswordVisibilityCommand { get; }
 
     public async Task InitializeAsync()
     {

@@ -42,23 +42,40 @@
                 <VerticalStackLayout Spacing="15">
                     
                     <Label Text="Username" FontSize="12" TextColor="{StaticResource Gray600}"/>
-                    <Entry Placeholder="Enter username" 
+                    <Entry AutomationId="UsernameEntry"
+                           Placeholder="Enter username" 
                            Text="{Binding Username}"
                            Keyboard="Default"
                            ReturnType="Next"/>
                     
                     <Label Text="Password" FontSize="12" TextColor="{StaticResource Gray600}"/>
-                    <Entry Placeholder="Enter password" 
-                           Text="{Binding Password}"
-                           IsPassword="True"
-                           ReturnType="Done"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Entry AutomationId="PasswordEntry"
+                               Placeholder="Enter password" 
+                               Text="{Binding Password}"
+                               IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolConverter}}"
+                               ReturnType="Done"
+                               Grid.Column="0"/>
+                        <Button AutomationId="TogglePasswordButton"
+                                Text="👁" 
+                                Command="{Binding TogglePasswordVisibilityCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Gray500}"
+                                FontSize="18"
+                                WidthRequest="50"
+                                HeightRequest="44"
+                                Grid.Column="1"
+                                VerticalOptions="Center"/>
+                    </Grid>
                     
-                    <Label Text="{Binding ErrorMessage}" 
+                    <Label AutomationId="ErrorLabel"
+                           Text="{Binding ErrorMessage}" 
                            TextColor="Red"
                            FontSize="12"
                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"/>
                     
-                    <Button Text="Login" 
+                    <Button AutomationId="LoginButton"
+                            Text="Login" 
                             Command="{Binding LoginCommand}"
                             IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                             BackgroundColor="{StaticResource Primary}"

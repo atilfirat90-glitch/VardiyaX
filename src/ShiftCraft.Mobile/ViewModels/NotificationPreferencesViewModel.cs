@@ -56,6 +56,8 @@ public class NotificationPreferencesViewModel : BaseViewModel
     public async Task LoadPreferencesAsync()
     {
         IsBusy = true;
+        ErrorMessage = string.Empty;
+        
         try
         {
             var prefs = await _pushHandler.GetPreferencesAsync();
@@ -64,9 +66,15 @@ public class NotificationPreferencesViewModel : BaseViewModel
             ShiftRemindersEnabled = prefs.ShiftRemindersEnabled;
             ReminderHoursBefore = prefs.ReminderHoursBefore;
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[NotificationPreferencesViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
+        }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[NotificationPreferencesViewModel] Load error: {ex}");
+            ErrorMessage = "Bildirim ayarları yüklenirken hata oluştu";
         }
         finally
         {
@@ -92,9 +100,15 @@ public class NotificationPreferencesViewModel : BaseViewModel
             await _pushHandler.UpdatePreferencesAsync(prefs);
             await Shell.Current.DisplayAlert("Başarılı", "Bildirim ayarları kaydedildi.", "Tamam");
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[NotificationPreferencesViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
+        }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[NotificationPreferencesViewModel] Save error: {ex}");
+            ErrorMessage = "Ayarlar kaydedilirken hata oluştu";
         }
         finally
         {

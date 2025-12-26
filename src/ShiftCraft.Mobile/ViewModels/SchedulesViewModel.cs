@@ -110,11 +110,17 @@ public class SchedulesViewModel : BaseViewModel
         }
         catch (UnauthorizedAccessException)
         {
-            // Already handled by ApiService
+            await Shell.Current.GoToAsync("//login");
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SchedulesViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[SchedulesViewModel] Load error: {ex}");
+            ErrorMessage = "Vardiyalar yüklenirken hata oluştu";
         }
         finally
         {

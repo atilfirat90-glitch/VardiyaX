@@ -1,4 +1,5 @@
 using ShiftCraft.Mobile.ViewModels;
+using ShiftCraft.Mobile.Helpers;
 
 namespace ShiftCraft.Mobile.Views;
 
@@ -12,9 +13,23 @@ public partial class ViolationsPage : ContentPage
         BindingContext = _viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadViolationsAsync();
+        LoadDataSafeAsync().SafeFireAndForgetAsync(ex => 
+            System.Diagnostics.Debug.WriteLine($"[ViolationsPage] OnAppearing error: {ex}"));
+    }
+
+    private async Task LoadDataSafeAsync()
+    {
+        try
+        {
+            await _viewModel.LoadViolationsAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ViolationsPage] Load error: {ex}");
+            _viewModel.ErrorMessage = "İhlaller yüklenirken hata oluştu";
+        }
     }
 }

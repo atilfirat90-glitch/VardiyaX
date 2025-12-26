@@ -1,4 +1,5 @@
 using ShiftCraft.Mobile.ViewModels;
+using ShiftCraft.Mobile.Helpers;
 
 namespace ShiftCraft.Mobile.Views;
 
@@ -12,10 +13,24 @@ public partial class AuditLogsPage : ContentPage
         BindingContext = _viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadDataAsync();
+        LoadDataSafeAsync().SafeFireAndForgetAsync(ex => 
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsPage] OnAppearing error: {ex}"));
+    }
+
+    private async Task LoadDataSafeAsync()
+    {
+        try
+        {
+            await _viewModel.LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsPage] Load error: {ex}");
+            _viewModel.ErrorMessage = "Denetim günlükleri yüklenirken hata oluştu";
+        }
     }
 
     private void OnLoginTabClicked(object sender, EventArgs e)

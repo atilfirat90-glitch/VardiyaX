@@ -54,26 +54,26 @@
                             <Label Grid.Row="1"
                                    Text="{Binding Description}" 
                                    FontSize="13"
-                                   TextColor="{StaticResource Gray700}"
+                                   TextColor="{StaticResource Gray600}"
                                    LineBreakMode="WordWrap"/>
                             
                             <!-- Footer -->
                             <HorizontalStackLayout Grid.Row="2" Spacing="15">
                                 <HorizontalStackLayout Spacing="4">
                                     <Label Text="🕐" FontSize="11"/>
-                                    <Label Text="{Binding DetectedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" 
+                                    <Label Text="{Binding ViolationDate, StringFormat='{0:dd MMM yyyy}'}" 
                                            FontSize="11" 
                                            TextColor="{StaticResource Gray500}"/>
                                 </HorizontalStackLayout>
-                                <HorizontalStackLayout Spacing="4" IsVisible="{Binding EmployeeId, Converter={StaticResource NullToBoolConverter}}">
+                                <HorizontalStackLayout Spacing="4">
                                     <Label Text="👤" FontSize="11"/>
-                                    <Label Text="{Binding EmployeeId, StringFormat='Employee #{0}'}" 
+                                    <Label Text="{Binding EmployeeId, StringFormat='Çalışan #{0}'}" 
                                            FontSize="11" 
                                            TextColor="{StaticResource Gray500}"/>
                                 </HorizontalStackLayout>
                                 <HorizontalStackLayout Spacing="4">
                                     <Label Text="📋" FontSize="11"/>
-                                    <Label Text="{Binding WeeklyScheduleId, StringFormat='Schedule #{0}'}" 
+                                    <Label Text="{Binding WeeklyScheduleId, StringFormat='Vardiya #{0}'}" 
                                            FontSize="11" 
                                            TextColor="{StaticResource Gray500}"/>
                                 </HorizontalStackLayout>

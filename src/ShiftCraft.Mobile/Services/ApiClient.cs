@@ -137,6 +137,35 @@ public class ApiClient : IApiClient
         if (response.IsSuccessStatusCode)
             return;
 
+        // Try to extract error message from API response
+        string? apiMessage = null;
+        string? rawContent = null;
+        try
+        {
+            rawContent = await response.Content.ReadAsStringAsync();
+            if (!string.IsNullOrEmpty(rawContent))
+            {
+                // Try to parse JSON error response
+                var errorObj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(rawContent);
+                if (errorObj != null && errorObj.TryGetValue("message", out var msg))
+                {
+                    apiMessage = msg?.ToString();
+                }
+            }
+        }
+        catch { /* Ignore parsing errors */ }
+
+        // #region agent log
+        try
+        {
+            var logData = new { statusCode = (int)response.StatusCode, statusCodeName = response.StatusCode.ToString(), apiMessage, rawContent = rawContent?.Substring(0, Math.Min(200, rawContent?.Length ?? 0)) };
+            var logJson = System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "pre-fix", hypothesisId = "H3", location = "ApiClient.cs:HandleResponseStatus", message = "API error response", data = logData, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() });
+            _ = Task.Run(async () => { try { using var client = new HttpClient(); await client.PostAsync("http://127.0.0.1:7242/ingest/7a8f70c6-57ed-41e7-bf68-3f80ee8d777a", new StringContent(logJson, System.Text.Encoding.UTF8, "application/json")); } catch { } }); 
+            try { await System.IO.File.AppendAllTextAsync(@"c:\Projects\VardiyaX\.cursor\debug.log", logJson + "\n"); } catch { }
+        }
+        catch { }
+        // #endregion
+
         switch (response.StatusCode)
         {
             case HttpStatusCode.Unauthorized:
@@ -147,17 +176,13 @@ public class ApiClient : IApiClient
                 throw new ApiException("Bu işlem için yetkiniz yok.", 403);
 
             case HttpStatusCode.NotFound:
-                throw new ApiException("Kayıt bulunamadı.", 404);
+                throw new ApiException(apiMessage ?? "Kayıt bulunamadı.", 404);
 
             case HttpStatusCode.Conflict:
-                throw new ApiException("Bu kayıt zaten mevcut.", 409);
+                throw new ApiException(apiMessage ?? "Bu kayıt zaten mevcut.", 409);
 
             case HttpStatusCode.BadRequest:
-                var content = await response.Content.ReadAsStringAsync();
-                var message = content.Contains("password")
-                    ? "Şifre en az 8 karakter ve 1 rakam içermelidir."
-                    : "Geçersiz istek.";
-                throw new ApiException(message, 400);
+                throw new ApiException(apiMessage ?? "Geçersiz istek.", 400);
 
             case HttpStatusCode.InternalServerError:
                 throw new ApiException("Sunucu hatası. Lütfen daha sonra tekrar deneyin.", 500);

@@ -1,4 +1,5 @@
 using ShiftCraft.Mobile.ViewModels;
+using ShiftCraft.Mobile.Helpers;
 
 namespace ShiftCraft.Mobile.Views;
 
@@ -12,9 +13,23 @@ public partial class UsersPage : ContentPage
         BindingContext = _viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadUsersAsync();
+        LoadDataSafeAsync().SafeFireAndForgetAsync(ex => 
+            System.Diagnostics.Debug.WriteLine($"[UsersPage] OnAppearing error: {ex}"));
+    }
+
+    private async Task LoadDataSafeAsync()
+    {
+        try
+        {
+            await _viewModel.LoadUsersAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UsersPage] Load error: {ex}");
+            _viewModel.ErrorMessage = "Kullanıcılar yüklenirken hata oluştu";
+        }
     }
 }

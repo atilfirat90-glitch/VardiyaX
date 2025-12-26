@@ -111,9 +111,15 @@ public class AuditLogsViewModel : BaseViewModel
         {
             await Shell.Current.GoToAsync("//login");
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
+        }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsViewModel] Load error: {ex}");
+            ErrorMessage = "Denetim günlükleri yüklenirken hata oluştu";
         }
         finally
         {
@@ -143,9 +149,15 @@ public class AuditLogsViewModel : BaseViewModel
                     break;
             }
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası";
+        }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsViewModel] LoadMore error: {ex}");
+            ErrorMessage = "Daha fazla veri yüklenirken hata oluştu";
         }
         finally
         {
@@ -218,9 +230,9 @@ public class AuditLogsViewModel : BaseViewModel
         _hasMoreData = _currentPage < result.TotalPages;
     }
 
-    private async Task AcknowledgeAsync(ViolationLogDto violation)
+    private async Task AcknowledgeAsync(ViolationLogDto? violation)
     {
-        if (violation.IsAcknowledged) return;
+        if (violation == null || violation.IsAcknowledged) return;
 
         try
         {
@@ -238,7 +250,8 @@ public class AuditLogsViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Hata", ex.Message, "Tamam");
+            System.Diagnostics.Debug.WriteLine($"[AuditLogsViewModel] Acknowledge error: {ex}");
+            ErrorMessage = "İşlem sırasında hata oluştu";
         }
     }
 }

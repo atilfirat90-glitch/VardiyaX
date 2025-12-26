@@ -5,7 +5,7 @@ namespace ShiftCraft.Api.Services;
 
 public class PasswordService : IPasswordService
 {
-    private const int MinLength = 8;
+    private const int MinLength = 5;
     private const int WorkFactor = 11;
 
     public string HashPassword(string password)
@@ -28,13 +28,10 @@ public class PasswordService : IPasswordService
     public PasswordValidationResult ValidatePassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
-            return PasswordValidationResult.Failure("Password is required");
+            return PasswordValidationResult.Failure("Şifre gereklidir");
 
         if (password.Length < MinLength)
-            return PasswordValidationResult.Failure($"Password must be at least {MinLength} characters");
-
-        if (!Regex.IsMatch(password, @"\d"))
-            return PasswordValidationResult.Failure("Password must contain at least one digit");
+            return PasswordValidationResult.Failure($"Şifre en az {MinLength} karakter olmalı");
 
         return PasswordValidationResult.Success();
     }

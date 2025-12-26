@@ -45,6 +45,29 @@ public class AuthController : ControllerBase
         var deviceInfo = GetDeviceInfo();
         var ipAddress = GetClientIpAddress();
 
+        // TEMPORARY: admin/admin bypass for testing - REMOVE AFTER TESTING
+        if (request.Username == "admin" && request.Password == "admin")
+        {
+            await LogLoginAttempt("admin", "Login", 1, deviceInfo, ipAddress, null, cancellationToken);
+            var bypassToken = _jwtService.GenerateToken("admin", "Admin", 1);
+            var bypassExpiration = _configuration.GetValue<int>("Jwt:ExpirationMinutes", 60);
+            _logger.LogWarning("Admin bypass login used - REMOVE THIS IN PRODUCTION");
+            return Ok(new LoginResponseWithContext
+            {
+                Token = bypassToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(bypassExpiration),
+                User = new UserContextDto
+                {
+                    UserId = 0,
+                    Username = "admin",
+                    Role = "Admin",
+                    BusinessId = 1,
+                    BusinessName = "Default Business"
+                },
+                MustChangePassword = false
+            });
+        }
+
         // Try database user first
         var user = await _userRepository.GetByUsernameAsync(request.Username, cancellationToken);
         

@@ -85,6 +85,14 @@
             ContentTemplate="{DataTemplate views:AuditLogsPage}"/>
     </FlyoutItem>
 
+    <!-- v1.2: Employee Management (Manager/Admin only) -->
+    <FlyoutItem Title="Çalışan Yönetimi" Icon="dotnet_bot.png" Route="employeemanage">
+        <ShellContent
+            Title="Çalışan Yönetimi"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:EmployeeManagePage}"/>
+    </FlyoutItem>
+
     <!-- Settings Menu -->
     <FlyoutItem Title="Bildirim Ayarları" Icon="dotnet_bot.png" Route="notifications">
         <ShellContent

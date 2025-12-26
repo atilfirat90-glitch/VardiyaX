@@ -52,3 +52,32 @@ appsettings.*.json
 # Test results
 TestResults/
 *.trx
+
+# UI dump files (test artifacts)
+ui*.xml
+ui_*.xml
+
+# Android build folders
+android-debug/
+android-debug-new/
+android-release-new/
+
+# Crash logs
+crash_*.log
+crash_*.txt
+
+# Deploy artifacts
+deploy-*.zip
+
+# Emulator screenshots
+emulator_*.png
+
+# Maestro test files
+maestro/
+
+# Cursor IDE
+.cursor/
+
+# Node modules in tests
+tests/node_modules/
+tests/package-lock.json

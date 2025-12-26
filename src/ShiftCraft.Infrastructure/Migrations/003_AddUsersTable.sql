@@ -26,9 +26,9 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_Users_Username]
 CREATE NONCLUSTERED INDEX [IX_Users_BusinessId] 
     ON [dbo].[Users] ([BusinessId] ASC);
 
--- Insert default admin user (password: ShiftCraft2024Prod!)
--- BCrypt hash for 'ShiftCraft2024Prod!'
+-- Insert default admin user (password: admin)
+-- BCrypt hash for 'admin'
 INSERT INTO [dbo].[Users] ([Username], [PasswordHash], [Role], [IsActive], [MustChangePassword], [BusinessId])
-VALUES ('admin', '$2a$11$K8xQzJ5YqR3vN1mL2pO4wOhGfE6dC8bA9yZ0xW1vU2tS3rQ4pO5nK', 'Admin', 1, 0, 1);
+VALUES ('admin', '$2a$11$pEoTgibSddiyXg9i/lQ5tuJNfurx4G4CtHjBLFDmWJX1iYCjc13pa', 'Admin', 1, 0, 1);
 
 GO

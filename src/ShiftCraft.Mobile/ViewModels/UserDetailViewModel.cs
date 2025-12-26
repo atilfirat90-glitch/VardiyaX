@@ -90,16 +90,25 @@ public class UserDetailViewModel : BaseViewModel
     private async Task LoadUserAsync(int id)
     {
         IsBusy = true;
+        ErrorMessage = string.Empty;
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[UserDetailViewModel] Loading user {id}...");
             var user = await _userService.GetUserAsync(id);
+            System.Diagnostics.Debug.WriteLine($"[UserDetailViewModel] User loaded: {user.Username}");
             Username = user.Username;
             SelectedRole = user.Role;
             IsActive = user.IsActive;
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UserDetailViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
+        }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[UserDetailViewModel] Load error: {ex}");
+            ErrorMessage = $"Kullanıcı yüklenirken hata: {ex.Message}";
         }
         finally
         {
@@ -109,21 +118,52 @@ public class UserDetailViewModel : BaseViewModel
 
     private async Task SaveAsync()
     {
+        // #region agent log
+        LogDebug("H1", "SaveAsync start", new Dictionary<string, object?>
+        {
+            { "isEditMode", _isEditMode },
+            { "userId", _userId },
+            { "username", Username },
+            { "selectedRole", SelectedRole },
+            { "passwordLength", Password?.Length ?? 0 }
+        });
+        // #endregion
+
         if (string.IsNullOrWhiteSpace(Username))
         {
             ErrorMessage = "Kullanıcı adı gereklidir.";
+            // #region agent log
+            LogDebug("H2", "Username validation failed", new Dictionary<string, object?>
+            {
+                { "username", Username }
+            });
+            // #endregion
             return;
         }
 
         if (!_isEditMode && string.IsNullOrWhiteSpace(Password))
         {
             ErrorMessage = "Şifre gereklidir.";
+            // #region agent log
+            LogDebug("H2", "Password empty validation failed", new Dictionary<string, object?>
+            {
+                { "username", Username }
+            });
+            // #endregion
             return;
         }
 
-        if (!_isEditMode && (Password.Length < 8 || !Password.Any(char.IsDigit)))
+        // v1.2: Updated validation to match API (5 chars minimum)
+        if (!_isEditMode && Password.Length < 5)
         {
-            ErrorMessage = "Şifre en az 8 karakter ve 1 rakam içermelidir.";
+            ErrorMessage = "Şifre en az 5 karakter olmalı.";
+            // #region agent log
+            LogDebug("H2", "Password length validation failed", new Dictionary<string, object?>
+            {
+                { "username", Username },
+                { "passwordLength", Password.Length }
+            });
+            // #endregion
             return;
         }
 
@@ -150,11 +190,49 @@ public class UserDetailViewModel : BaseViewModel
                 });
             }
 
+            // #region agent log
+            LogDebug("H1", "SaveAsync success", new Dictionary<string, object?>
+            {
+                { "isEditMode", _isEditMode },
+                { "userId", _userId },
+                { "username", Username }
+            });
+            // #endregion
+
             await Shell.Current.GoToAsync("..");
+        }
+        catch (ApiException ex)
+        {
+            // v1.2: Display specific API error message
+            ErrorMessage = ex.Message;
+            // #region agent log
+            LogDebug("H3", "ApiException", new Dictionary<string, object?>
+            {
+                { "statusCode", ex.StatusCode },
+                { "message", ex.Message }
+            });
+            // #endregion
+        }
+        catch (HttpRequestException)
+        {
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
+            // #region agent log
+            LogDebug("H4", "HttpRequestException", new Dictionary<string, object?>
+            {
+                { "username", Username }
+            });
+            // #endregion
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            // #region agent log
+            LogDebug("H5", "Unexpected exception", new Dictionary<string, object?>
+            {
+                { "message", ex.Message },
+                { "username", Username }
+            });
+            // #endregion
         }
         finally
         {
@@ -211,4 +289,46 @@ public class UserDetailViewModel : BaseViewModel
             IsBusy = false;
         }
     }
+
+    // #region agent log
+    private static readonly HttpClient _logClient = new HttpClient
+    {
+        Timeout = TimeSpan.FromSeconds(2)
+    };
+
+    private void LogDebug(string hypothesisId, string message, Dictionary<string, object?> data)
+    {
+        try
+        {
+            var payload = new
+            {
+                sessionId = "debug-session",
+                runId = "pre-fix",
+                hypothesisId,
+                location = "UserDetailViewModel.cs",
+                message,
+                data,
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+
+            // Preferred: send to host via emulator loopback (10.0.2.2). Fallback to host loopback in dev.
+            _ = _logClient.PostAsync("http://10.0.2.2:7242/ingest/7a8f70c6-57ed-41e7-bf68-3f80ee8d777a",
+                new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            _ = _logClient.PostAsync("http://127.0.0.1:7242/ingest/7a8f70c6-57ed-41e7-bf68-3f80ee8d777a",
+                new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+
+            // Best-effort local append (device-side path for adb pull if needed)
+            try
+            {
+                System.IO.File.AppendAllText("/sdcard/Download/debug.log", json + Environment.NewLine);
+            }
+            catch { /* ignore secondary failure */ }
+        }
+        catch
+        {
+            // avoid throwing from logging
+        }
+    }
+    // #endregion
 }

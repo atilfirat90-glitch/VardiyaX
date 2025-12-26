@@ -61,9 +61,15 @@ public class UsersViewModel : BaseViewModel
         {
             await Shell.Current.GoToAsync("//login");
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UsersViewModel] Network error: {ex}");
+            ErrorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin.";
+        }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"[UsersViewModel] Load error: {ex}");
+            ErrorMessage = "Kullanıcılar yüklenirken hata oluştu";
         }
         finally
         {
@@ -73,11 +79,31 @@ public class UsersViewModel : BaseViewModel
 
     private async Task NavigateToAddUser()
     {
-        await Shell.Current.GoToAsync("userdetail");
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[UsersViewModel] Navigating to add user...");
+            await Shell.Current.GoToAsync("userdetail");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UsersViewModel] Navigation error: {ex}");
+            ErrorMessage = $"Sayfa açılırken hata oluştu: {ex.Message}";
+        }
     }
 
-    private async Task NavigateToEditUser(UserDto user)
+    private async Task NavigateToEditUser(UserDto? user)
     {
-        await Shell.Current.GoToAsync($"userdetail?userId={user.Id}");
+        if (user == null) return;
+        
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[UsersViewModel] Navigating to edit user {user.Id}...");
+            await Shell.Current.GoToAsync($"userdetail?userId={user.Id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UsersViewModel] Navigation error: {ex}");
+            ErrorMessage = $"Sayfa açılırken hata oluştu: {ex.Message}";
+        }
     }
 }

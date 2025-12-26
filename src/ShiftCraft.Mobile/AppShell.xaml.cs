@@ -21,6 +21,10 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("auditlogs", typeof(AuditLogsPage));
         Routing.RegisterRoute("notifications", typeof(NotificationPreferencesPage));
         
+        // v1.2: Employee Management routes
+        Routing.RegisterRoute("employeemanage", typeof(EmployeeManagePage));
+        Routing.RegisterRoute("employeeedit", typeof(EmployeeEditPage));
+        
         // Update header when navigating
         Navigated += OnNavigated;
     }
