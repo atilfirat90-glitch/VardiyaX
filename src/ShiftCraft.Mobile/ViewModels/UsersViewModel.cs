@@ -87,7 +87,13 @@ public class UsersViewModel : BaseViewModel
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[UsersViewModel] Navigation error: {ex}");
-            ErrorMessage = $"Sayfa açılırken hata oluştu: {ex.Message}";
+            // Show full exception details for debugging
+            var fullError = $"{ex.GetType().Name}: {ex.Message}";
+            if (ex.InnerException != null)
+            {
+                fullError += $"\nInner: {ex.InnerException.Message}";
+            }
+            ErrorMessage = fullError;
         }
     }
 

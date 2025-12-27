@@ -39,13 +39,15 @@
         </VerticalStackLayout>
     </Shell.FlyoutHeader>
 
-    <!-- Login Route (No Flyout) -->
+    <!-- Login Route (No Flyout) - DISABLED FOR TESTING -->
+    <!--
     <ShellContent
         Route="login"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Shell.FlyoutBehavior="Disabled"
         Shell.NavBarIsVisible="False"
         FlyoutItemIsVisible="False"/>
+    -->
 
     <!-- Main TabBar -->
     <FlyoutItem Title="Ana Sayfa" Icon="dotnet_bot.png" Route="main">

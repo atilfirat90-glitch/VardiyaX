@@ -14,11 +14,47 @@ public class AuthService : IAuthService
     private string? _role;
     private DateTime? _tokenExpiry;
 
+    // TEST MODE FLAG - Set to true to auto-login with admin/admin credentials
+    private const bool TEST_MODE = true;
+    private bool _testModeInitialized = false;
+    
     public AuthService(HttpClient httpClient)
     {
         _httpClient = httpClient;
         _baseUrl = ApiSettings.BaseUrl;
         // v1.1: Removed BaseAddress assignment - using full URL pattern
+        
+        // TEST MODE: Will auto-login on first API call
+        if (TEST_MODE)
+        {
+            System.Diagnostics.Debug.WriteLine("[AuthService] TEST MODE ACTIVE - Will auto-login on first use");
+        }
+    }
+    
+    private async Task EnsureTestModeLoginAsync()
+    {
+        if (!TEST_MODE || _testModeInitialized) return;
+        
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[AuthService] TEST MODE - Auto-login with admin/admin");
+            var result = await LoginAsync("admin", "admin");
+            if (result != null)
+            {
+                _testModeInitialized = true;
+                System.Diagnostics.Debug.WriteLine("[AuthService] TEST MODE - Auto-login successful");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthService] TEST MODE - Auto-login failed: {ex.Message}");
+            // Fallback to hardcoded token if API is not available
+            _token = "test-token-fallback";
+            _username = "admin";
+            _role = "Admin";
+            _tokenExpiry = DateTime.UtcNow.AddYears(1);
+            _testModeInitialized = true;
+        }
     }
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(_token) && _tokenExpiry > DateTime.UtcNow;
@@ -87,6 +123,13 @@ public class AuthService : IAuthService
 
     public async Task<bool> TryRestoreSessionAsync()
     {
+        // TEST MODE: Auto-login with admin/admin
+        if (TEST_MODE)
+        {
+            await EnsureTestModeLoginAsync();
+            return IsAuthenticated;
+        }
+        
         try
         {
             var token = await SecureStorage.GetAsync("auth_token");
@@ -117,6 +160,14 @@ public class AuthService : IAuthService
 
     public async Task LogoutAsync()
     {
+        // TEST MODE: Don't actually logout - just show message
+        if (TEST_MODE)
+        {
+            System.Diagnostics.Debug.WriteLine("[AuthService] TEST MODE - Logout disabled");
+            await Task.CompletedTask;
+            return;
+        }
+        
         _token = null;
         _username = null;
         _role = null;

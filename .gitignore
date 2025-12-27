@@ -71,6 +71,14 @@ deploy-*.zip
 
 # Emulator screenshots
 emulator_*.png
+emu_*.png
+ui_test_*.png
+
+# UI dump text files
+ui_dump.txt
+
+# Publish folders
+publish-linux-new/
 
 # Maestro test files
 maestro/
