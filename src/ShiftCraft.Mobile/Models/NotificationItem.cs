@@ -1,6 +1,8 @@
+using System.ComponentModel;
+
 namespace ShiftCraft.Mobile.Models;
 
-public class NotificationItem
+public class NotificationItem : INotifyPropertyChanged
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -8,7 +10,21 @@ public class NotificationItem
     public string Type { get; set; } = string.Empty;
     public string Action { get; set; } = string.Empty;
     public string? DataJson { get; set; }
-    public bool IsRead { get; set; }
+
+    private bool _isRead;
+    public bool IsRead
+    {
+        get => _isRead;
+        set
+        {
+            if (_isRead != value)
+            {
+                _isRead = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRead)));
+            }
+        }
+    }
+
     public DateTime CreatedAt { get; set; }
     public DateTime? ReadAt { get; set; }
 
@@ -32,6 +48,8 @@ public class NotificationItem
         "ShiftReminder" => "🔔",
         _ => "📬"
     };
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 }
 
 public class NotificationListResponse

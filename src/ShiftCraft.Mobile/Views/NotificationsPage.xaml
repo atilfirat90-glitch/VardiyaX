@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ShiftCraft.Mobile.Models"
              x:Class="ShiftCraft.Mobile.Views.NotificationsPage"
              x:DataType="vm:NotificationsViewModel"
              Title="Bildirimler"
@@ -81,11 +82,12 @@
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="x:String">
+                    <DataTemplate x:DataType="models:NotificationItem">
                         <Frame Margin="10,5" 
                                Padding="15" 
                                CornerRadius="10"
-                               HasShadow="False">
+                               HasShadow="False"
+                               BackgroundColor="White">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer 
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NotificationsViewModel}}, Path=NotificationTappedCommand}"
@@ -93,18 +95,22 @@
                             </Frame.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Label Grid.Column="0" 
+                                       Text="{Binding TypeIcon}"
                                        FontSize="24" 
                                        VerticalOptions="Start"
                                        Margin="0,2,0,0"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                    <Label FontSize="14" 
+                                    <Label Text="{Binding Title}"
+                                           FontSize="14" 
                                            FontAttributes="Bold"
                                            LineBreakMode="TailTruncation"/>
-                                    <Label FontSize="12" 
+                                    <Label Text="{Binding Body}"
+                                           FontSize="12" 
                                            TextColor="{StaticResource Gray600}"
                                            MaxLines="2"
                                            LineBreakMode="TailTruncation"/>
-                                    <Label FontSize="11" 
+                                    <Label Text="{Binding TimeAgo}"
+                                           FontSize="11" 
                                            TextColor="{StaticResource Gray400}"/>
                                 </VerticalStackLayout>
                                 <BoxView Grid.Column="2"
@@ -113,7 +119,8 @@
                                          CornerRadius="4"
                                          Color="{StaticResource Primary}"
                                          VerticalOptions="Start"
-                                         Margin="0,6,0,0"/>
+                                         Margin="0,6,0,0"
+                                         IsVisible="{Binding IsRead, Converter={StaticResource InverseBoolConverter}}"/>
                             </Grid>
                         </Frame>
                     </DataTemplate>

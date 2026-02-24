@@ -20,4 +20,6 @@ public class ShiftResponseDto
     public TimeSpan EndTime { get; set; }
     public int DurationMinutes { get; set; }
     public string Status { get; set; } = "Draft";
+    public string ShiftTemplateName { get; set; } = string.Empty;
+    public int? ShiftTemplateId { get; set; }
 }

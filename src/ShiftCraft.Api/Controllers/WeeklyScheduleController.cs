@@ -94,10 +94,17 @@ public class WeeklyScheduleController : ControllerBase
         var affectedEmployeeIds = await LogPublishAction(schedule, cancellationToken);
 
         // Send push notifications to affected employees
-        if (affectedEmployeeIds.Any())
+        try
         {
-            await _pushNotificationService.SendSchedulePublishedNotificationAsync(
-                schedule.Id, affectedEmployeeIds.ToList(), cancellationToken);
+            if (affectedEmployeeIds.Any())
+            {
+                await _pushNotificationService.SendSchedulePublishedNotificationAsync(
+                    schedule.Id, affectedEmployeeIds.ToList(), cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send publish notifications for schedule {ScheduleId}", id);
         }
 
         _logger.LogInformation("Schedule {ScheduleId} published by {User}, notified {Count} employees", 

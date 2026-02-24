@@ -37,17 +37,28 @@ public class PushNotificationService : IPushNotificationService
         try
         {
             var allUsers = await _userRepository.GetAllAsync(cancellationToken);
-            var activeUserIds = allUsers.Where(u => u.IsActive).Select(u => u.Id).ToHashSet();
+            var activeUsers = allUsers.Where(u => u.IsActive).ToList();
+            var activeUserIds = activeUsers.Select(u => u.Id).ToList();
 
-            foreach (var user in allUsers.Where(u => u.IsActive))
+            _logger.LogDebug(
+                "Creating schedule notifications for {Count} active users: [{UserIds}]",
+                activeUserIds.Count, string.Join(", ", activeUserIds));
+
+            foreach (var user in activeUsers)
             {
-                var preference = await _preferenceRepository.GetByUserIdAsync(user.Id, cancellationToken);
+                var currentUserId = user.Id;
+                _logger.LogDebug("Creating notification for UserId={UserId}, Username={Username}", currentUserId, user.Username);
+
+                var preference = await _preferenceRepository.GetByUserIdAsync(currentUserId, cancellationToken);
                 if (preference?.ScheduleNotificationsEnabled == false)
+                {
+                    _logger.LogDebug("Skipping UserId={UserId} - notifications disabled", currentUserId);
                     continue;
+                }
 
                 var notification = new Notification
                 {
-                    UserId = user.Id,
+                    UserId = currentUserId,
                     Title = "Yeni Program Yayınlandı",
                     Body = $"Haftalık vardiya programınız güncellendi. {employeeIds.Count} çalışan etkilendi.",
                     Type = "SchedulePublished",
@@ -58,6 +69,7 @@ public class PushNotificationService : IPushNotificationService
                 };
 
                 await _notificationRepository.AddAsync(notification, cancellationToken);
+                _logger.LogDebug("Notification created for UserId={UserId}", currentUserId);
                 notifiedCount++;
             }
         }

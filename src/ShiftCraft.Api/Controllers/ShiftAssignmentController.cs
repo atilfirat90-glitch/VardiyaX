@@ -142,7 +142,9 @@ public class ShiftAssignmentController : ControllerBase
             StartTime = request.StartTime,
             EndTime = request.EndTime,
             DurationMinutes = shiftTemplate.DurationMinutes,
-            Status = weeklySchedule.Status.ToString()
+            Status = weeklySchedule.Status.ToString(),
+            ShiftTemplateName = shiftTemplate.Name,
+            ShiftTemplateId = shiftTemplate.Id
         };
 
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
