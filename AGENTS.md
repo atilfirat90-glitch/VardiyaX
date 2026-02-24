@@ -102,6 +102,16 @@ API endpoints: `GET /api/notification`, `GET /api/notification/unread`, `GET /ap
 
 **Known issue:** The publish notification flow uses `_userRepository.GetAllAsync()` to find active users, but the resulting `UserId` in notifications may not match the logged-in admin's ID due to EF Core change tracking across the request pipeline. The FK constraint on the `Notifications` table was set to `NO ACTION` to prevent cascading failures.
 
+### Shift Create & Schedule View (v1.4)
+
+New mobile-only pages added in `ShiftCraft.Mobile`:
+- **ShiftCreatePage** — creates shift assignments via `POST /api/shiftassignment/create`
+- **ScheduleViewPage** — daily/weekly schedule view via `GET /api/shiftassignment` (by business/date) and `GET /api/shiftassignment/date-range`
+- **IShiftService** / **ShiftService** — service layer for shift API calls
+- Role-based flyout visibility: "Vardiya Oluştur" only visible to Manager/Admin roles
+
+These pages follow the same `BaseViewModel` + constructor DI + `OnAppearing` pattern as existing pages.
+
 ### Scope Limitations
 
 - `ShiftCraft.Mobile` (MAUI) cannot be built on headless Linux; skip it.
