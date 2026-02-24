@@ -50,6 +50,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IRuleEngineService, RuleEngineService>();
 builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
+builder.Services.AddScoped<IShiftValidationService, ShiftValidationService>();
 
 // JWT Authentication
 builder.Services.AddScoped<IJwtService, JwtService>();
