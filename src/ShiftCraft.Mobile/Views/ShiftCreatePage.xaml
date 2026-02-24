@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ShiftCraft.Mobile.Models"
+             x:Class="ShiftCraft.Mobile.Views.ShiftCreatePage"
+             x:DataType="vm:ShiftCreateViewModel"
+             Title="Vardiya Oluştur"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Employee Picker -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Çalışan" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Gray600}"/>
+                    <Picker Title="Çalışan seçin"
+                            ItemsSource="{Binding Employees}"
+                            ItemDisplayBinding="{Binding FullName}"
+                            SelectedItem="{Binding SelectedEmployee}"
+                            FontSize="16"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Date Picker -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Tarih" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Gray600}"/>
+                    <DatePicker Date="{Binding SelectedDate}"
+                                MinimumDate="{x:Static sys:DateTime.Today}"
+                                Format="dd MMMM yyyy, dddd"
+                                FontSize="16"
+                                xmlns:sys="clr-namespace:System;assembly=mscorlib"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Start Time Picker -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Başlangıç Saati" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Gray600}"/>
+                    <TimePicker Time="{Binding StartTime}"
+                                Format="HH:mm"
+                                FontSize="16"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- End Time Picker -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Bitiş Saati" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Gray600}"/>
+                    <TimePicker Time="{Binding EndTime}"
+                                Format="HH:mm"
+                                FontSize="16"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Error Message -->
+            <Frame BackgroundColor="#FFEBEE" 
+                   BorderColor="#EF5350"
+                   Padding="15" 
+                   CornerRadius="8"
+                   IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" 
+                       TextColor="#C62828"/>
+            </Frame>
+
+            <!-- Success Message -->
+            <Frame BackgroundColor="#E8F5E9" 
+                   BorderColor="#66BB6A"
+                   Padding="15" 
+                   CornerRadius="8"
+                   IsVisible="{Binding HasSuccess}">
+                <Label Text="{Binding SuccessMessage}" 
+                       TextColor="#2E7D32"/>
+            </Frame>
+
+            <!-- Save Button -->
+            <Button Text="Kaydet"
+                    Command="{Binding SaveCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    CornerRadius="10"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"/>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               HeightRequest="40"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

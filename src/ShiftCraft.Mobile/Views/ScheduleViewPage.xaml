@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ShiftCraft.Mobile.Models"
+             x:Class="ShiftCraft.Mobile.Views.ScheduleViewPage"
+             x:DataType="vm:ScheduleViewViewModel"
+             Title="Program Görüntüle"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- View Mode Toggle -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,*" Padding="15,10" ColumnSpacing="10">
+            <Button Text="Günlük"
+                    Command="{Binding DailyCommand}"
+                    BackgroundColor="{Binding IsDailyMode, Converter={StaticResource ActiveStatusColorConverter}}"
+                    TextColor="White"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    HeightRequest="40"/>
+            <Button Grid.Column="1"
+                    Text="Haftalık"
+                    Command="{Binding WeeklyCommand}"
+                    BackgroundColor="{Binding IsWeeklyMode, Converter={StaticResource ActiveStatusColorConverter}}"
+                    TextColor="White"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    HeightRequest="40"/>
+        </Grid>
+
+        <!-- Date Navigation -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Padding="15,5" ColumnSpacing="10">
+            <Button Grid.Column="0"
+                    Text="‹"
+                    Command="{Binding PreviousDayCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontSize="28"
+                    FontAttributes="Bold"
+                    WidthRequest="50"
+                    HeightRequest="44"/>
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center">
+                <Label Text="{Binding SelectedDateText}"
+                       FontSize="15"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Gray900}"
+                       HorizontalTextAlignment="Center"/>
+                <Label Text="Bugün"
+                       FontSize="12"
+                       TextColor="{StaticResource Primary}"
+                       HorizontalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding TodayCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+            <Button Grid.Column="2"
+                    Text="›"
+                    Command="{Binding NextDayCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontSize="28"
+                    FontAttributes="Bold"
+                    WidthRequest="50"
+                    HeightRequest="44"/>
+        </Grid>
+
+        <!-- Error Message -->
+        <Frame Grid.Row="2"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+               BackgroundColor="#FFEBEE"
+               CornerRadius="0"
+               Padding="15,10"
+               HasShadow="False">
+            <Label Text="{Binding ErrorMessage}" TextColor="#C62828" FontSize="13"/>
+        </Frame>
+
+        <!-- Shift List -->
+        <RefreshView Grid.Row="3"
+                     Command="{Binding RefreshCommand}"
+                     IsRefreshing="{Binding IsBusy}"
+                     RefreshColor="{StaticResource Primary}">
+            <CollectionView ItemsSource="{Binding ShiftGroups}"
+                            IsGrouped="True"
+                            SelectionMode="None">
+
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate x:DataType="models:ShiftGroup">
+                        <StackLayout Padding="15,10,15,5">
+                            <Label Text="{Binding DateHeader}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}"/>
+                            <BoxView HeightRequest="1" 
+                                     Color="{StaticResource Gray200}" 
+                                     Margin="0,5,0,0"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ShiftResponseDto">
+                        <Frame Margin="10,5" Padding="15" CornerRadius="10" HasShadow="True" BackgroundColor="White">
+                            <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="15">
+
+                                <!-- Avatar -->
+                                <Frame Grid.Column="0" 
+                                       BackgroundColor="{StaticResource Primary}" 
+                                       CornerRadius="25" 
+                                       HeightRequest="50" 
+                                       WidthRequest="50"
+                                       Padding="0"
+                                       HasShadow="False">
+                                    <Label Text="{Binding EmployeeName, Converter={StaticResource FirstCharConverter}}" 
+                                           FontSize="20" 
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Shift Info -->
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                                    <Label Text="{Binding EmployeeName}" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource Gray900}"/>
+                                    <Label Text="{Binding TimeRange}" 
+                                           FontSize="14" 
+                                           TextColor="{StaticResource Gray600}"/>
+                                </VerticalStackLayout>
+
+                                <!-- Status Badge -->
+                                <Frame Grid.Column="2"
+                                       CornerRadius="8"
+                                       Padding="8,4"
+                                       HasShadow="False"
+                                       VerticalOptions="Center"
+                                       BackgroundColor="#E3F2FD">
+                                    <Label Text="{Binding Status}" 
+                                           FontSize="11" 
+                                           TextColor="#1565C0"/>
+                                </Frame>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" 
+                                         HorizontalOptions="Center"
+                                         Padding="40"
+                                         Spacing="10"
+                                         IsVisible="{Binding IsEmpty}">
+                        <Label Text="📅" FontSize="48" HorizontalOptions="Center"/>
+                        <Label Text="Bu tarihte vardiya bulunamadı" 
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Gray500}"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Loading -->
+        <ActivityIndicator Grid.Row="3"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           Color="{StaticResource Primary}"
+                           VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

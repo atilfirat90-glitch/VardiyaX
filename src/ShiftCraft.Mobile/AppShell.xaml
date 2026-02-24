@@ -95,6 +95,22 @@
             ContentTemplate="{DataTemplate views:EmployeeManagePage}"/>
     </FlyoutItem>
 
+    <!-- v1.4: Shift Create (Manager/Admin only) -->
+    <FlyoutItem Title="Vardiya Oluştur" Icon="dotnet_bot.png" Route="shiftcreate">
+        <ShellContent
+            Title="Vardiya Oluştur"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:ShiftCreatePage}"/>
+    </FlyoutItem>
+
+    <!-- v1.4: Schedule View (All roles) -->
+    <FlyoutItem Title="Program Görüntüle" Icon="dotnet_bot.png" Route="scheduleview">
+        <ShellContent
+            Title="Program Görüntüle"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:ScheduleViewPage}"/>
+    </FlyoutItem>
+
     <!-- v1.3: Notification Center -->
     <FlyoutItem Title="Bildirimler" Icon="dotnet_bot.png" Route="notificationcenter">
         <ShellContent

@@ -21,5 +21,10 @@ public static class ApiSettings
         public const string NotificationUnreadCount = "notification/unread/count";
         public const string NotificationReadAll = "notification/read-all";
         public const string NotificationPreferences = "notification/preferences";
+        
+        // v1.4: Shift Assignment endpoints
+        public const string ShiftAssignments = "shiftassignment";
+        public const string ShiftCreate = "shiftassignment/create";
+        public const string ShiftDateRange = "shiftassignment/date-range";
     }
 }

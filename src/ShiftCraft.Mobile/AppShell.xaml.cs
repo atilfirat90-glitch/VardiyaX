@@ -28,6 +28,10 @@ public partial class AppShell : Shell
         // v1.3: Notification Center route
         Routing.RegisterRoute("notificationcenter", typeof(NotificationsPage));
         
+        // v1.4: Shift Create and Schedule View routes
+        Routing.RegisterRoute("shiftcreate", typeof(ShiftCreatePage));
+        Routing.RegisterRoute("scheduleview", typeof(ScheduleViewPage));
+        
         // Update header when navigating
         Navigated += OnNavigated;
     }
@@ -43,6 +47,24 @@ public partial class AppShell : Shell
         {
             UserNameLabel.Text = _authService.Username ?? "VardiyaX";
             UserRoleLabel.Text = _authService.IsManager ? "Yönetici" : "Çalışan";
+            
+            UpdateFlyoutVisibility();
+        }
+    }
+
+    private void UpdateFlyoutVisibility()
+    {
+        foreach (var item in Items)
+        {
+            if (item is FlyoutItem flyoutItem)
+            {
+                switch (flyoutItem.Route)
+                {
+                    case "shiftcreate":
+                        flyoutItem.FlyoutItemIsVisible = _authService.IsManager;
+                        break;
+                }
+            }
         }
     }
 

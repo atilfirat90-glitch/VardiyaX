@@ -43,6 +43,9 @@ public static class MauiProgram
         // v1.3: In-App Notification Service
         builder.Services.AddSingleton<INotificationService, NotificationService>();
         
+        // v1.4: Shift Service
+        builder.Services.AddSingleton<IShiftService, ShiftService>();
+        
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<EmployeesViewModel>();
@@ -60,6 +63,10 @@ public static class MauiProgram
         // v1.3: Notifications ViewModel
         builder.Services.AddTransient<NotificationsViewModel>();
         
+        // v1.4: Shift Create & Schedule View ViewModels
+        builder.Services.AddTransient<ShiftCreateViewModel>();
+        builder.Services.AddTransient<ScheduleViewViewModel>();
+        
         // Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<EmployeesPage>();
@@ -76,6 +83,10 @@ public static class MauiProgram
         
         // v1.3: Notifications Page
         builder.Services.AddTransient<NotificationsPage>();
+        
+        // v1.4: Shift Create & Schedule View Pages
+        builder.Services.AddTransient<ShiftCreatePage>();
+        builder.Services.AddTransient<ScheduleViewPage>();
         
         // Shell
         builder.Services.AddSingleton<AppShell>();
