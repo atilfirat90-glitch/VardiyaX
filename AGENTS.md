@@ -112,7 +112,15 @@ New mobile-only pages added in `ShiftCraft.Mobile`:
 
 These pages follow the same `BaseViewModel` + constructor DI + `OnAppearing` pattern as existing pages.
 
+### Mobile Build on Linux
+
+`ShiftCraft.Mobile` **can** be built for Android on headless Linux with Android SDK installed at `$HOME/android-sdk`. To build:
+1. Temporarily change `TargetFrameworks` in the `.csproj` to only `net9.0-android`
+2. Create a `Directory.Build.props` in the Mobile project directory with `<AndroidSdkDirectory>$(ANDROID_SDK_ROOT)</AndroidSdkDirectory>`
+3. Run: `ANDROID_SDK_ROOT=$HOME/android-sdk dotnet build -f net9.0-android`
+4. Restore original `TargetFrameworks` and delete `Directory.Build.props` after build
+
 ### Scope Limitations
 
-- `ShiftCraft.Mobile` (MAUI) cannot be built on headless Linux; skip it.
+- `ShiftCraft.Mobile` cannot be **run** on headless Linux (no emulator/device).
 - Appium E2E tests in `tests/package.json` require an Android emulator; not runnable in this environment.
