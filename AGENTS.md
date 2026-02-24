@@ -91,6 +91,17 @@ dotnet build /workspace/src/ShiftCraft.sln
 - **Config-based:** Username/password from `appsettings.json` `Auth` section (`admin` / `ShiftCraft2024!`)
 - Both return a JWT token to use as `Authorization: Bearer <token>`.
 
+### In-App Notification System (v1.3)
+
+The notification system stores notifications in the `Notifications` table. Notifications are created by `PushNotificationService` when:
+- A schedule is published (type: `SchedulePublished`)
+- A rule violation is detected (type: `ViolationDetected`)
+- A shift reminder is due (type: `ShiftReminder`)
+
+API endpoints: `GET /api/notification`, `GET /api/notification/unread`, `GET /api/notification/unread/count`, `POST /api/notification/{id}/read`, `POST /api/notification/read-all`.
+
+**Known issue:** The publish notification flow uses `_userRepository.GetAllAsync()` to find active users, but the resulting `UserId` in notifications may not match the logged-in admin's ID due to EF Core change tracking across the request pipeline. The FK constraint on the `Notifications` table was set to `NO ACTION` to prevent cascading failures.
+
 ### Scope Limitations
 
 - `ShiftCraft.Mobile` (MAUI) cannot be built on headless Linux; skip it.
