@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using ShiftCraft.Mobile.Services;
 using ShiftCraft.Mobile.ViewModels;
@@ -40,6 +40,9 @@ public static class MauiProgram
         // v1.2: Employee Management Service
         builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
         
+        // v1.3: In-App Notification Service
+        builder.Services.AddSingleton<INotificationService, NotificationService>();
+        
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<EmployeesViewModel>();
@@ -54,6 +57,9 @@ public static class MauiProgram
         builder.Services.AddTransient<EmployeeManageViewModel>();
         builder.Services.AddTransient<EmployeeEditViewModel>();
         
+        // v1.3: Notifications ViewModel
+        builder.Services.AddTransient<NotificationsViewModel>();
+        
         // Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<EmployeesPage>();
@@ -67,6 +73,9 @@ public static class MauiProgram
         // v1.2: Employee Management Pages
         builder.Services.AddTransient<EmployeeManagePage>();
         builder.Services.AddTransient<EmployeeEditPage>();
+        
+        // v1.3: Notifications Page
+        builder.Services.AddTransient<NotificationsPage>();
         
         // Shell
         builder.Services.AddSingleton<AppShell>();

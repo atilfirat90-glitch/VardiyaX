@@ -27,6 +27,7 @@ public class ShiftCraftDbContext : DbContext
     public DbSet<PublishLog> PublishLogs => Set<PublishLog>();
     public DbSet<DeviceRegistration> DeviceRegistrations => Set<DeviceRegistration>();
     public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

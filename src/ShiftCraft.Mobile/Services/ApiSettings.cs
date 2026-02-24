@@ -16,5 +16,10 @@ public static class ApiSettings
         public const string Employees = "employee";
         public const string WeeklySchedules = "weeklyschedule";
         public const string RuleViolations = "ruleviolation";
+        public const string Notifications = "notification";
+        public const string NotificationUnread = "notification/unread";
+        public const string NotificationUnreadCount = "notification/unread/count";
+        public const string NotificationReadAll = "notification/read-all";
+        public const string NotificationPreferences = "notification/preferences";
     }
 }

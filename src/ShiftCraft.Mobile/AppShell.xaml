@@ -95,6 +95,14 @@
             ContentTemplate="{DataTemplate views:EmployeeManagePage}"/>
     </FlyoutItem>
 
+    <!-- v1.3: Notification Center -->
+    <FlyoutItem Title="Bildirimler" Icon="dotnet_bot.png" Route="notificationcenter">
+        <ShellContent
+            Title="Bildirimler"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:NotificationsPage}"/>
+    </FlyoutItem>
+
     <!-- Settings Menu -->
     <FlyoutItem Title="Bildirim Ayarları" Icon="dotnet_bot.png" Route="notifications">
         <ShellContent

@@ -1,4 +1,4 @@
-﻿using ShiftCraft.Mobile.Services;
+using ShiftCraft.Mobile.Services;
 using ShiftCraft.Mobile.Views;
 
 namespace ShiftCraft.Mobile;
@@ -24,6 +24,9 @@ public partial class AppShell : Shell
         // v1.2: Employee Management routes
         Routing.RegisterRoute("employeemanage", typeof(EmployeeManagePage));
         Routing.RegisterRoute("employeeedit", typeof(EmployeeEditPage));
+        
+        // v1.3: Notification Center route
+        Routing.RegisterRoute("notificationcenter", typeof(NotificationsPage));
         
         // Update header when navigating
         Navigated += OnNavigated;

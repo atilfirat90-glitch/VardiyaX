@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using ShiftCraft.Application.Interfaces;
+using ShiftCraft.Domain.Entities;
 
 namespace ShiftCraft.Application.Services;
 
@@ -7,15 +9,21 @@ public class PushNotificationService : IPushNotificationService
 {
     private readonly IDeviceRegistrationRepository _deviceRepository;
     private readonly INotificationPreferenceRepository _preferenceRepository;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<PushNotificationService> _logger;
 
     public PushNotificationService(
         IDeviceRegistrationRepository deviceRepository,
         INotificationPreferenceRepository preferenceRepository,
+        INotificationRepository notificationRepository,
+        IUserRepository userRepository,
         ILogger<PushNotificationService> logger)
     {
         _deviceRepository = deviceRepository;
         _preferenceRepository = preferenceRepository;
+        _notificationRepository = notificationRepository;
+        _userRepository = userRepository;
         _logger = logger;
     }
 
@@ -24,31 +32,57 @@ public class PushNotificationService : IPushNotificationService
         List<int> employeeIds, 
         CancellationToken cancellationToken = default)
     {
-        // Get devices for employees who have schedule notifications enabled
+        var notifiedCount = 0;
+
+        try
+        {
+            var allUsers = await _userRepository.GetAllAsync(cancellationToken);
+            var activeUserIds = allUsers.Where(u => u.IsActive).Select(u => u.Id).ToHashSet();
+
+            foreach (var user in allUsers.Where(u => u.IsActive))
+            {
+                var preference = await _preferenceRepository.GetByUserIdAsync(user.Id, cancellationToken);
+                if (preference?.ScheduleNotificationsEnabled == false)
+                    continue;
+
+                var notification = new Notification
+                {
+                    UserId = user.Id,
+                    Title = "Yeni Program Yayınlandı",
+                    Body = $"Haftalık vardiya programınız güncellendi. {employeeIds.Count} çalışan etkilendi.",
+                    Type = "SchedulePublished",
+                    Action = "navigate_schedule",
+                    DataJson = JsonSerializer.Serialize(new { scheduleId = weeklyScheduleId, affectedEmployees = employeeIds.Count }),
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _notificationRepository.AddAsync(notification, cancellationToken);
+                notifiedCount++;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create schedule published notifications for schedule {ScheduleId}", weeklyScheduleId);
+        }
+
+        // Also send to registered devices (FCM/APNS placeholder)
         var devices = await _deviceRepository.GetActiveByUserIdsAsync(employeeIds, cancellationToken);
-        
         foreach (var device in devices)
         {
             var preference = await _preferenceRepository.GetByUserIdAsync(device.UserId, cancellationToken);
             if (preference?.ScheduleNotificationsEnabled != false)
             {
-                var payload = new PushNotificationPayload
-                {
-                    Title = "Yeni Program Yayınlandı",
-                    Body = "Haftalık vardiya programınız güncellendi. Kontrol etmek için tıklayın.",
-                    Action = "navigate_schedule",
-                    Data = new Dictionary<string, string>
-                    {
-                        { "scheduleId", weeklyScheduleId.ToString() }
-                    }
-                };
-
-                await SendPushNotificationAsync(device.DeviceToken, device.Platform, payload);
+                await SendPushToDeviceAsync(device.DeviceToken, device.Platform, 
+                    "Yeni Program Yayınlandı", 
+                    "Haftalık vardiya programınız güncellendi.",
+                    "navigate_schedule");
             }
         }
 
-        _logger.LogInformation("Schedule published notification sent to {Count} devices for schedule {ScheduleId}", 
-            devices.Count(), weeklyScheduleId);
+        _logger.LogInformation(
+            "Schedule published notification: {Count} in-app notifications created for schedule {ScheduleId}", 
+            notifiedCount, weeklyScheduleId);
     }
 
     public async Task SendViolationDetectedNotificationAsync(
@@ -56,30 +90,46 @@ public class PushNotificationService : IPushNotificationService
         List<int> managerUserIds, 
         CancellationToken cancellationToken = default)
     {
+        var notifiedCount = 0;
+
+        foreach (var userId in managerUserIds)
+        {
+            var preference = await _preferenceRepository.GetByUserIdAsync(userId, cancellationToken);
+            if (preference?.ViolationNotificationsEnabled == false)
+                continue;
+
+            var notification = new Notification
+            {
+                UserId = userId,
+                Title = "Kural İhlali Tespit Edildi",
+                Body = "Yeni bir kural ihlali tespit edildi. Detaylar için tıklayın.",
+                Type = "ViolationDetected",
+                Action = "navigate_violations",
+                DataJson = JsonSerializer.Serialize(new { violationId }),
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _notificationRepository.AddAsync(notification, cancellationToken);
+            notifiedCount++;
+        }
+
         var devices = await _deviceRepository.GetActiveByUserIdsAsync(managerUserIds, cancellationToken);
-        
         foreach (var device in devices)
         {
             var preference = await _preferenceRepository.GetByUserIdAsync(device.UserId, cancellationToken);
             if (preference?.ViolationNotificationsEnabled != false)
             {
-                var payload = new PushNotificationPayload
-                {
-                    Title = "Kural İhlali Tespit Edildi",
-                    Body = "Yeni bir kural ihlali tespit edildi. Detaylar için tıklayın.",
-                    Action = "navigate_violations",
-                    Data = new Dictionary<string, string>
-                    {
-                        { "violationId", violationId.ToString() }
-                    }
-                };
-
-                await SendPushNotificationAsync(device.DeviceToken, device.Platform, payload);
+                await SendPushToDeviceAsync(device.DeviceToken, device.Platform,
+                    "Kural İhlali Tespit Edildi",
+                    "Yeni bir kural ihlali tespit edildi.",
+                    "navigate_violations");
             }
         }
 
-        _logger.LogInformation("Violation notification sent to {Count} managers for violation {ViolationId}", 
-            devices.Count(), violationId);
+        _logger.LogInformation(
+            "Violation notification: {Count} in-app notifications created for violation {ViolationId}", 
+            notifiedCount, violationId);
     }
 
     public async Task ScheduleShiftReminderAsync(
@@ -88,40 +138,41 @@ public class PushNotificationService : IPushNotificationService
         DateTime shiftStart, 
         CancellationToken cancellationToken = default)
     {
-        var devices = await _deviceRepository.GetByUserIdAsync(employeeId, cancellationToken);
-        
-        foreach (var device in devices)
-        {
-            var preference = await _preferenceRepository.GetOrCreateByUserIdAsync(device.UserId, cancellationToken);
-            if (preference.ShiftRemindersEnabled)
-            {
-                // In a real implementation, this would schedule the notification
-                // using a background job scheduler like Hangfire or Azure Functions
-                _logger.LogInformation(
-                    "Shift reminder scheduled for assignment {AssignmentId}, employee {EmployeeId}, " +
-                    "shift start {ShiftStart}, reminder {Hours}h before",
-                    shiftAssignmentId, employeeId, shiftStart, preference.ReminderHoursBefore);
-            }
-        }
+        var preference = await _preferenceRepository.GetOrCreateByUserIdAsync(employeeId, cancellationToken);
+        if (!preference.ShiftRemindersEnabled)
+            return;
 
-        await Task.CompletedTask;
+        var notification = new Notification
+        {
+            UserId = employeeId,
+            Title = "Vardiya Hatırlatması",
+            Body = $"Vardiyanız {shiftStart:dd.MM.yyyy HH:mm} tarihinde başlayacak.",
+            Type = "ShiftReminder",
+            Action = "navigate_schedule",
+            DataJson = JsonSerializer.Serialize(new { shiftAssignmentId, shiftStart }),
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _notificationRepository.AddAsync(notification, cancellationToken);
+
+        _logger.LogInformation(
+            "Shift reminder created for assignment {AssignmentId}, employee {EmployeeId}, shift start {ShiftStart}",
+            shiftAssignmentId, employeeId, shiftStart);
     }
 
     public async Task CancelShiftReminderAsync(int shiftAssignmentId, CancellationToken cancellationToken = default)
     {
-        // In a real implementation, this would cancel scheduled notifications
         _logger.LogInformation("Shift reminder cancelled for assignment {AssignmentId}", shiftAssignmentId);
         await Task.CompletedTask;
     }
 
-    private async Task SendPushNotificationAsync(string deviceToken, string platform, PushNotificationPayload payload)
+    private Task SendPushToDeviceAsync(string deviceToken, string platform, string title, string body, string action)
     {
-        // In a real implementation, this would send to FCM/APNS
-        // For now, just log the notification
+        // FCM/APNS integration placeholder
         _logger.LogInformation(
             "Push notification queued: Platform={Platform}, Token={Token}, Title={Title}",
-            platform, deviceToken[..Math.Min(20, deviceToken.Length)] + "...", payload.Title);
-
-        await Task.CompletedTask;
+            platform, deviceToken[..Math.Min(20, deviceToken.Length)] + "...", title);
+        return Task.CompletedTask;
     }
 }
