@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
              xmlns:models="clr-namespace:ShiftCraft.Mobile.Models"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              x:Class="ShiftCraft.Mobile.Views.ShiftCreatePage"
              x:DataType="vm:ShiftCreateViewModel"
              Title="Vardiya Oluştur"
@@ -34,8 +35,7 @@
                     <DatePicker Date="{Binding SelectedDate}"
                                 MinimumDate="{x:Static sys:DateTime.Today}"
                                 Format="dd MMMM yyyy, dddd"
-                                FontSize="16"
-                                xmlns:sys="clr-namespace:System;assembly=mscorlib"/>
+                                FontSize="16"/>
                 </VerticalStackLayout>
             </Frame>
 
