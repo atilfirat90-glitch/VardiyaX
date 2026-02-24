@@ -14,4 +14,7 @@ public interface IAuthService
     string? Role { get; }
     bool IsManager { get; }
     bool IsWorker { get; }
+    bool IsAdmin { get; }
+    bool IsEmployee { get; }
+    int BusinessId { get; }
 }

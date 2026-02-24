@@ -43,6 +43,7 @@ public class ShiftTemplateController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ShiftTemplate>> Create(ShiftTemplate template, CancellationToken cancellationToken)
     {
         var created = await _shiftTemplateRepository.AddAsync(template, cancellationToken);
@@ -50,6 +51,7 @@ public class ShiftTemplateController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, ShiftTemplate template, CancellationToken cancellationToken)
     {
         if (id != template.Id) return BadRequest();
@@ -58,6 +60,7 @@ public class ShiftTemplateController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var template = await _shiftTemplateRepository.GetByIdAsync(id, cancellationToken);

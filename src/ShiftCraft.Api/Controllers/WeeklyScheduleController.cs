@@ -61,6 +61,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<WeeklySchedule>> Create(WeeklySchedule schedule, CancellationToken cancellationToken)
     {
         schedule.Status = ScheduleStatus.Draft;
@@ -69,6 +70,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, WeeklySchedule schedule, CancellationToken cancellationToken)
     {
         if (id != schedule.Id) return BadRequest();
@@ -77,6 +79,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpPost("{id}/publish")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<IEnumerable<RuleViolation>>> Publish(int id, CancellationToken cancellationToken)
     {
         var schedule = await _weeklyScheduleRepository.GetByIdAsync(id, cancellationToken);
@@ -104,6 +107,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var schedule = await _weeklyScheduleRepository.GetByIdAsync(id, cancellationToken);

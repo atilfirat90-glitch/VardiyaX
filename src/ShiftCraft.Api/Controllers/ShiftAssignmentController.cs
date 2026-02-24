@@ -68,6 +68,7 @@ public class ShiftAssignmentController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ShiftAssignment>> Create(ShiftAssignment assignment, CancellationToken cancellationToken)
     {
         var created = await _shiftAssignmentRepository.AddAsync(assignment, cancellationToken);
@@ -75,6 +76,7 @@ public class ShiftAssignmentController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, ShiftAssignment assignment, CancellationToken cancellationToken)
     {
         if (id != assignment.Id) return BadRequest();
@@ -83,6 +85,7 @@ public class ShiftAssignmentController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var assignment = await _shiftAssignmentRepository.GetByIdAsync(id, cancellationToken);
@@ -92,6 +95,7 @@ public class ShiftAssignmentController : ControllerBase
     }
 
     [HttpPost("create")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ShiftResponseDto>> CreateShift([FromBody] CreateShiftRequest request, CancellationToken cancellationToken)
     {
         var errors = await _shiftValidationService.ValidateShiftAsync(

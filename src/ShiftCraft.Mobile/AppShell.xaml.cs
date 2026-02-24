@@ -54,18 +54,17 @@ public partial class AppShell : Shell
 
     private void UpdateFlyoutVisibility()
     {
-        foreach (var item in Items)
-        {
-            if (item is FlyoutItem flyoutItem)
-            {
-                switch (flyoutItem.Route)
-                {
-                    case "shiftcreate":
-                        flyoutItem.FlyoutItemIsVisible = _authService.IsManager;
-                        break;
-                }
-            }
-        }
+        var isAdmin = _authService.IsAdmin;
+        var isManager = _authService.IsManager;
+
+        UserManagementItem.FlyoutItemIsVisible = isAdmin;
+        EmployeeManageItem.FlyoutItemIsVisible = isManager;
+        ShiftCreateItem.FlyoutItemIsVisible = isManager;
+        AuditLogsItem.FlyoutItemIsVisible = isManager;
+
+        ScheduleViewItem.FlyoutItemIsVisible = true;
+        NotificationsItem.FlyoutItemIsVisible = true;
+        NotificationSettingsItem.FlyoutItemIsVisible = true;
     }
 
     private async void OnLogoutClicked(object? sender, EventArgs e)

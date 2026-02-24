@@ -43,6 +43,7 @@ public class ShiftRequirementController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ShiftRequirement>> Create(ShiftRequirement requirement, CancellationToken cancellationToken)
     {
         var created = await _shiftRequirementRepository.AddAsync(requirement, cancellationToken);
@@ -50,6 +51,7 @@ public class ShiftRequirementController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, ShiftRequirement requirement, CancellationToken cancellationToken)
     {
         if (id != requirement.Id) return BadRequest();
@@ -58,6 +60,7 @@ public class ShiftRequirementController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var requirement = await _shiftRequirementRepository.GetByIdAsync(id, cancellationToken);
