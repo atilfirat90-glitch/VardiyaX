@@ -32,6 +32,12 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("shiftcreate", typeof(ShiftCreatePage));
         Routing.RegisterRoute("scheduleview", typeof(ScheduleViewPage));
         
+        // v1.5: New feature routes
+        Routing.RegisterRoute("dashboard", typeof(DashboardPage));
+        Routing.RegisterRoute("shiftswap", typeof(ShiftSwapPage));
+        Routing.RegisterRoute("timeoff", typeof(TimeOffPage));
+        Routing.RegisterRoute("teamchat", typeof(TeamChatPage));
+        
         // Update header when navigating
         Navigated += OnNavigated;
     }
@@ -65,6 +71,11 @@ public partial class AppShell : Shell
         ScheduleViewItem.FlyoutItemIsVisible = true;
         NotificationsItem.FlyoutItemIsVisible = true;
         NotificationSettingsItem.FlyoutItemIsVisible = true;
+
+        DashboardItem.FlyoutItemIsVisible = true;
+        ShiftSwapItem.FlyoutItemIsVisible = true;
+        TimeOffItem.FlyoutItemIsVisible = true;
+        TeamChatItem.FlyoutItemIsVisible = true;
     }
 
     private async void OnLogoutClicked(object? sender, EventArgs e)

@@ -49,6 +49,14 @@
         FlyoutItemIsVisible="False"/>
     -->
 
+    <!-- v1.5: Dashboard (FIRST item) -->
+    <FlyoutItem x:Name="DashboardItem" Title="Ana Panel" Icon="dotnet_bot.png" Route="dashboard">
+        <ShellContent
+            Title="Ana Panel"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:DashboardPage}"/>
+    </FlyoutItem>
+
     <!-- Main TabBar -->
     <FlyoutItem Title="Ana Sayfa" Icon="dotnet_bot.png" Route="main">
         <Tab Title="Çalışanlar">
@@ -125,6 +133,30 @@
             Title="Bildirim Ayarları"
             Icon="dotnet_bot.png"
             ContentTemplate="{DataTemplate views:NotificationPreferencesPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.5: Shift Swap -->
+    <FlyoutItem x:Name="ShiftSwapItem" Title="Vardiya Takas" Icon="dotnet_bot.png" Route="shiftswap">
+        <ShellContent
+            Title="Vardiya Takas"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:ShiftSwapPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.5: Time Off -->
+    <FlyoutItem x:Name="TimeOffItem" Title="İzin Talepleri" Icon="dotnet_bot.png" Route="timeoff">
+        <ShellContent
+            Title="İzin Talepleri"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:TimeOffPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.5: Team Chat -->
+    <FlyoutItem x:Name="TeamChatItem" Title="Takım Sohbeti" Icon="dotnet_bot.png" Route="teamchat">
+        <ShellContent
+            Title="Takım Sohbeti"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:TeamChatPage}"/>
     </FlyoutItem>
 
     <!-- Logout Menu Item -->

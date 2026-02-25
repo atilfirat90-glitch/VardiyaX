@@ -26,5 +26,26 @@ public static class ApiSettings
         public const string ShiftAssignments = "shiftassignment";
         public const string ShiftCreate = "shiftassignment/create";
         public const string ShiftDateRange = "shiftassignment/date-range";
+
+        // v1.5: Shift Swap endpoints
+        public const string ShiftSwap = "shiftswap";
+        public const string ShiftSwapBusiness = "shiftswap/business";
+        public const string ShiftSwapEmployee = "shiftswap/employee";
+
+        // v1.5: Time Off endpoints
+        public const string TimeOff = "timeoff";
+        public const string TimeOffEmployee = "timeoff/employee";
+        public const string TimeOffPending = "timeoff/business";
+
+        // v1.5: Team Message endpoints
+        public const string TeamMessage = "teammessage";
+        public const string TeamMessageAnnouncements = "teammessage/announcements";
+        public const string TeamMessageAnnouncement = "teammessage/announcement";
+
+        // v1.5: Availability endpoints
+        public const string Availability = "availability/employee";
+
+        // v1.5: Dashboard endpoint
+        public const string Dashboard = "dashboard/business";
     }
 }

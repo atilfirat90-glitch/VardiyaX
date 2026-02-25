@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ShiftCraft.Mobile.Models"
+             x:Class="ShiftCraft.Mobile.Views.ShiftSwapPage"
+             x:DataType="vm:ShiftSwapViewModel"
+             Title="Vardiya Takas"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <Grid RowDefinitions="*">
+        <RefreshView Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding SwapRequests}"
+                            EmptyView="Bekleyen takas talebi bulunmuyor">
+                <CollectionView.Header>
+                    <VerticalStackLayout Padding="20,20,20,10">
+                        <Label Text="Takas Talepleri"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}"/>
+                        <Label Text="Bekleyen vardiya takas taleplerini görüntüleyin"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray600}"
+                               Margin="0,5,0,0"/>
+                    </VerticalStackLayout>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ShiftSwapRequestModel">
+                        <Frame BackgroundColor="White" 
+                               Padding="15" 
+                               CornerRadius="10" 
+                               HasShadow="True" 
+                               Margin="20,0,20,10">
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" 
+                                           Text="{Binding RequesterName}" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"/>
+                                    <Frame Grid.Column="1" 
+                                           BackgroundColor="#FFF3E0" 
+                                           CornerRadius="12" 
+                                           Padding="8,4" 
+                                           HasShadow="False">
+                                        <Label Text="{Binding StatusText}" 
+                                               FontSize="12" 
+                                               TextColor="#E65100"/>
+                                    </Frame>
+                                </Grid>
+
+                                <Label Text="{Binding Reason}" 
+                                       FontSize="14" 
+                                       TextColor="{StaticResource Gray600}"
+                                       IsVisible="{Binding Reason, Converter={StaticResource NullToBoolConverter}}"/>
+
+                                <Label Text="{Binding CreatedAtText}" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource Gray400}"/>
+
+                                <!-- Manager Actions -->
+                                <HorizontalStackLayout Spacing="10" 
+                                                       HorizontalOptions="End"
+                                                       Margin="0,5,0,0">
+                                    <Button Text="Onayla"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ShiftSwapViewModel}}, Path=ApproveCommand}"
+                                            CommandParameter="{Binding Id}"
+                                            BackgroundColor="#4CAF50"
+                                            TextColor="White"
+                                            FontSize="13"
+                                            HeightRequest="36"
+                                            CornerRadius="8"/>
+                                    <Button Text="Reddet"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ShiftSwapViewModel}}, Path=RejectCommand}"
+                                            CommandParameter="{Binding Id}"
+                                            BackgroundColor="#F44336"
+                                            TextColor="White"
+                                            FontSize="13"
+                                            HeightRequest="36"
+                                            CornerRadius="8"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                           IsVisible="{Binding IsBusy}"
+                           Color="{StaticResource Primary}"
+                           VerticalOptions="Center"
+                           HeightRequest="40"/>
+    </Grid>
+</ContentPage>

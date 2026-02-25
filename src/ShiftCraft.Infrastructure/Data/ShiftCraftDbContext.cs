@@ -28,6 +28,10 @@ public class ShiftCraftDbContext : DbContext
     public DbSet<DeviceRegistration> DeviceRegistrations => Set<DeviceRegistration>();
     public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<ShiftSwapRequest> ShiftSwapRequests => Set<ShiftSwapRequest>();
+    public DbSet<EmployeeAvailability> EmployeeAvailabilities => Set<EmployeeAvailability>();
+    public DbSet<TimeOffRequest> TimeOffRequests => Set<TimeOffRequest>();
+    public DbSet<TeamMessage> TeamMessages => Set<TeamMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

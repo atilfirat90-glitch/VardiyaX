@@ -46,6 +46,10 @@ builder.Services.AddScoped<IPublishLogRepository, PublishLogRepository>();
 builder.Services.AddScoped<IDeviceRegistrationRepository, DeviceRegistrationRepository>();
 builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IShiftSwapRepository, ShiftSwapRepository>();
+builder.Services.AddScoped<IEmployeeAvailabilityRepository, EmployeeAvailabilityRepository>();
+builder.Services.AddScoped<ITimeOffRepository, TimeOffRepository>();
+builder.Services.AddScoped<ITeamMessageRepository, TeamMessageRepository>();
 
 builder.Services.AddScoped<IRuleEngineService, RuleEngineService>();
 builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
