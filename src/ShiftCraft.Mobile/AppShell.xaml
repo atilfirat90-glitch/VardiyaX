@@ -49,6 +49,14 @@
         FlyoutItemIsVisible="False"/>
     -->
 
+    <!-- v1.5: Dashboard (FIRST item) -->
+    <FlyoutItem x:Name="DashboardItem" Title="Ana Panel" Icon="dotnet_bot.png" Route="dashboard">
+        <ShellContent
+            Title="Ana Panel"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:DashboardPage}"/>
+    </FlyoutItem>
+
     <!-- Main TabBar -->
     <FlyoutItem Title="Ana Sayfa" Icon="dotnet_bot.png" Route="main">
         <Tab Title="Çalışanlar">
@@ -72,7 +80,7 @@
     </FlyoutItem>
 
     <!-- Admin Menu -->
-    <FlyoutItem Title="Kullanıcı Yönetimi" Icon="dotnet_bot.png" Route="users">
+    <FlyoutItem x:Name="UserManagementItem" Title="Kullanıcı Yönetimi" Icon="dotnet_bot.png" Route="users">
         <ShellContent
             Title="Kullanıcılar"
             Icon="dotnet_bot.png"
@@ -80,7 +88,7 @@
     </FlyoutItem>
 
     <!-- Audit Logs Menu -->
-    <FlyoutItem Title="Denetim Günlükleri" Icon="dotnet_bot.png" Route="auditlogs">
+    <FlyoutItem x:Name="AuditLogsItem" Title="Denetim Günlükleri" Icon="dotnet_bot.png" Route="auditlogs">
         <ShellContent
             Title="Denetim Günlükleri"
             Icon="dotnet_bot.png"
@@ -88,19 +96,67 @@
     </FlyoutItem>
 
     <!-- v1.2: Employee Management (Manager/Admin only) -->
-    <FlyoutItem Title="Çalışan Yönetimi" Icon="dotnet_bot.png" Route="employeemanage">
+    <FlyoutItem x:Name="EmployeeManageItem" Title="Çalışan Yönetimi" Icon="dotnet_bot.png" Route="employeemanage">
         <ShellContent
             Title="Çalışan Yönetimi"
             Icon="dotnet_bot.png"
             ContentTemplate="{DataTemplate views:EmployeeManagePage}"/>
     </FlyoutItem>
 
+    <!-- v1.4: Shift Create (Manager/Admin only) -->
+    <FlyoutItem x:Name="ShiftCreateItem" Title="Vardiya Oluştur" Icon="dotnet_bot.png" Route="shiftcreate">
+        <ShellContent
+            Title="Vardiya Oluştur"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:ShiftCreatePage}"/>
+    </FlyoutItem>
+
+    <!-- v1.4: Schedule View (All roles) -->
+    <FlyoutItem x:Name="ScheduleViewItem" Title="Program Görüntüle" Icon="dotnet_bot.png" Route="scheduleview">
+        <ShellContent
+            Title="Program Görüntüle"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:ScheduleViewPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.3: Notification Center -->
+    <FlyoutItem x:Name="NotificationsItem" Title="Bildirimler" Icon="dotnet_bot.png" Route="notificationcenter">
+        <ShellContent
+            Title="Bildirimler"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:NotificationsPage}"/>
+    </FlyoutItem>
+
     <!-- Settings Menu -->
-    <FlyoutItem Title="Bildirim Ayarları" Icon="dotnet_bot.png" Route="notifications">
+    <FlyoutItem x:Name="NotificationSettingsItem" Title="Bildirim Ayarları" Icon="dotnet_bot.png" Route="notifications">
         <ShellContent
             Title="Bildirim Ayarları"
             Icon="dotnet_bot.png"
             ContentTemplate="{DataTemplate views:NotificationPreferencesPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.5: Shift Swap -->
+    <FlyoutItem x:Name="ShiftSwapItem" Title="Vardiya Takas" Icon="dotnet_bot.png" Route="shiftswap">
+        <ShellContent
+            Title="Vardiya Takas"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:ShiftSwapPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.5: Time Off -->
+    <FlyoutItem x:Name="TimeOffItem" Title="İzin Talepleri" Icon="dotnet_bot.png" Route="timeoff">
+        <ShellContent
+            Title="İzin Talepleri"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:TimeOffPage}"/>
+    </FlyoutItem>
+
+    <!-- v1.5: Team Chat -->
+    <FlyoutItem x:Name="TeamChatItem" Title="Takım Sohbeti" Icon="dotnet_bot.png" Route="teamchat">
+        <ShellContent
+            Title="Takım Sohbeti"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:TeamChatPage}"/>
     </FlyoutItem>
 
     <!-- Logout Menu Item -->

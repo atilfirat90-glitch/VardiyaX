@@ -43,6 +43,7 @@ public class ScheduleDayController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ScheduleDay>> Create(ScheduleDay day, CancellationToken cancellationToken)
     {
         var created = await _scheduleDayRepository.AddAsync(day, cancellationToken);
@@ -50,6 +51,7 @@ public class ScheduleDayController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, ScheduleDay day, CancellationToken cancellationToken)
     {
         if (id != day.Id) return BadRequest();
@@ -58,6 +60,7 @@ public class ScheduleDayController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var day = await _scheduleDayRepository.GetByIdAsync(id, cancellationToken);

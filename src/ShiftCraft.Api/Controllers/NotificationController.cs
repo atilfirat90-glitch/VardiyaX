@@ -17,22 +17,127 @@ public class NotificationController : ControllerBase
 {
     private readonly IDeviceRegistrationRepository _deviceRepository;
     private readonly INotificationPreferenceRepository _preferenceRepository;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<NotificationController> _logger;
 
     public NotificationController(
         IDeviceRegistrationRepository deviceRepository,
         INotificationPreferenceRepository preferenceRepository,
+        INotificationRepository notificationRepository,
+        IUserRepository userRepository,
         ILogger<NotificationController> logger)
     {
         _deviceRepository = deviceRepository;
         _preferenceRepository = preferenceRepository;
+        _notificationRepository = notificationRepository;
+        _userRepository = userRepository;
         _logger = logger;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<NotificationDto>>> GetNotifications(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
+        if (userId == null)
+            return BadRequest(new { message = "User context required" });
+
+        var notifications = await _notificationRepository.GetByUserIdAsync(userId.Value, page, pageSize, cancellationToken);
+        var unreadCount = await _notificationRepository.GetUnreadCountAsync(userId.Value, cancellationToken);
+
+        var dtos = notifications.Select(n => new NotificationDto
+        {
+            Id = n.Id,
+            Title = n.Title,
+            Body = n.Body,
+            Type = n.Type,
+            Action = n.Action,
+            DataJson = n.DataJson,
+            IsRead = n.IsRead,
+            CreatedAt = n.CreatedAt,
+            ReadAt = n.ReadAt
+        });
+
+        return Ok(new NotificationListResponse
+        {
+            Notifications = dtos,
+            UnreadCount = unreadCount,
+            Page = page,
+            PageSize = pageSize
+        });
+    }
+
+    [HttpGet("unread")]
+    public async Task<ActionResult<IEnumerable<NotificationDto>>> GetUnreadNotifications(CancellationToken cancellationToken)
+    {
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
+        if (userId == null)
+            return BadRequest(new { message = "User context required" });
+
+        var notifications = await _notificationRepository.GetUnreadByUserIdAsync(userId.Value, cancellationToken);
+        var dtos = notifications.Select(n => new NotificationDto
+        {
+            Id = n.Id,
+            Title = n.Title,
+            Body = n.Body,
+            Type = n.Type,
+            Action = n.Action,
+            DataJson = n.DataJson,
+            IsRead = n.IsRead,
+            CreatedAt = n.CreatedAt
+        });
+
+        return Ok(dtos);
+    }
+
+    [HttpGet("unread/count")]
+    public async Task<ActionResult<object>> GetUnreadCount(CancellationToken cancellationToken)
+    {
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
+        if (userId == null)
+            return BadRequest(new { message = "User context required" });
+
+        var count = await _notificationRepository.GetUnreadCountAsync(userId.Value, cancellationToken);
+        return Ok(new { count });
+    }
+
+    [HttpPost("{id}/read")]
+    public async Task<IActionResult> MarkAsRead(int id, CancellationToken cancellationToken)
+    {
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
+        if (userId == null)
+            return BadRequest(new { message = "User context required" });
+
+        var notification = await _notificationRepository.GetByIdAsync(id, cancellationToken);
+        if (notification == null)
+            return NotFound();
+
+        if (notification.UserId != userId.Value)
+            return Forbid();
+
+        await _notificationRepository.MarkAsReadAsync(id, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("read-all")]
+    public async Task<IActionResult> MarkAllAsRead(CancellationToken cancellationToken)
+    {
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
+        if (userId == null)
+            return BadRequest(new { message = "User context required" });
+
+        await _notificationRepository.MarkAllAsReadAsync(userId.Value, cancellationToken);
+        _logger.LogInformation("All notifications marked as read for user {UserId}", userId);
+        return NoContent();
     }
 
     [HttpGet("preferences")]
     public async Task<ActionResult<NotificationPreferencesDto>> GetPreferences(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
         if (userId == null)
             return BadRequest(new { message = "User context required" });
 
@@ -52,7 +157,7 @@ public class NotificationController : ControllerBase
         [FromBody] NotificationPreferencesDto request, 
         CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
         if (userId == null)
             return BadRequest(new { message = "User context required" });
 
@@ -74,7 +179,7 @@ public class NotificationController : ControllerBase
         [FromBody] RegisterDeviceRequest request, 
         CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = await GetCurrentUserIdAsync(cancellationToken);
         if (userId == null)
             return BadRequest(new { message = "User context required" });
 
@@ -84,11 +189,9 @@ public class NotificationController : ControllerBase
         if (string.IsNullOrEmpty(request.Platform))
             return BadRequest(new { message = "Platform is required" });
 
-        // Check if device already registered
         var existing = await _deviceRepository.GetByDeviceTokenAsync(request.DeviceToken, cancellationToken);
         if (existing != null)
         {
-            // Update existing registration
             existing.UserId = userId.Value;
             existing.Platform = request.Platform;
             existing.LastActiveAt = DateTime.UtcNow;
@@ -97,7 +200,6 @@ public class NotificationController : ControllerBase
         }
         else
         {
-            // Create new registration
             var device = new DeviceRegistration
             {
                 UserId = userId.Value,
@@ -133,11 +235,20 @@ public class NotificationController : ControllerBase
         return NoContent();
     }
 
-    private int? GetCurrentUserId()
+    private async Task<int?> GetCurrentUserIdAsync(CancellationToken cancellationToken = default)
     {
-        // In a real implementation, this would come from the JWT claims
-        // For now, we'll use a placeholder
         var userIdClaim = User.FindFirst("user_id")?.Value;
-        return int.TryParse(userIdClaim, out var id) ? id : null;
+        if (int.TryParse(userIdClaim, out var id))
+            return id;
+
+        var username = User.Identity?.Name;
+        if (!string.IsNullOrEmpty(username))
+        {
+            var user = await _userRepository.GetByUsernameAsync(username, cancellationToken);
+            if (user != null)
+                return user.Id;
+        }
+
+        return null;
     }
 }

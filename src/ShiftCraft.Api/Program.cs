@@ -45,10 +45,16 @@ builder.Services.AddScoped<ILoginLogRepository, LoginLogRepository>();
 builder.Services.AddScoped<IPublishLogRepository, PublishLogRepository>();
 builder.Services.AddScoped<IDeviceRegistrationRepository, DeviceRegistrationRepository>();
 builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IShiftSwapRepository, ShiftSwapRepository>();
+builder.Services.AddScoped<IEmployeeAvailabilityRepository, EmployeeAvailabilityRepository>();
+builder.Services.AddScoped<ITimeOffRepository, TimeOffRepository>();
+builder.Services.AddScoped<ITeamMessageRepository, TeamMessageRepository>();
 
 builder.Services.AddScoped<IRuleEngineService, RuleEngineService>();
 builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
+builder.Services.AddScoped<IShiftValidationService, ShiftValidationService>();
 
 // JWT Authentication
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -102,9 +108,20 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddHealthChecks();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 app.UseGlobalExceptionHandler();
+app.UseCors();
 
 // Swagger only in Development
 if (app.Environment.IsDevelopment())

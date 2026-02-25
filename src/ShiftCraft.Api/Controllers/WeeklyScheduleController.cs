@@ -61,6 +61,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<WeeklySchedule>> Create(WeeklySchedule schedule, CancellationToken cancellationToken)
     {
         schedule.Status = ScheduleStatus.Draft;
@@ -69,6 +70,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, WeeklySchedule schedule, CancellationToken cancellationToken)
     {
         if (id != schedule.Id) return BadRequest();
@@ -77,6 +79,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpPost("{id}/publish")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<IEnumerable<RuleViolation>>> Publish(int id, CancellationToken cancellationToken)
     {
         var schedule = await _weeklyScheduleRepository.GetByIdAsync(id, cancellationToken);
@@ -91,10 +94,17 @@ public class WeeklyScheduleController : ControllerBase
         var affectedEmployeeIds = await LogPublishAction(schedule, cancellationToken);
 
         // Send push notifications to affected employees
-        if (affectedEmployeeIds.Any())
+        try
         {
-            await _pushNotificationService.SendSchedulePublishedNotificationAsync(
-                schedule.Id, affectedEmployeeIds.ToList(), cancellationToken);
+            if (affectedEmployeeIds.Any())
+            {
+                await _pushNotificationService.SendSchedulePublishedNotificationAsync(
+                    schedule.Id, affectedEmployeeIds.ToList(), cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send publish notifications for schedule {ScheduleId}", id);
         }
 
         _logger.LogInformation("Schedule {ScheduleId} published by {User}, notified {Count} employees", 
@@ -104,6 +114,7 @@ public class WeeklyScheduleController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var schedule = await _weeklyScheduleRepository.GetByIdAsync(id, cancellationToken);

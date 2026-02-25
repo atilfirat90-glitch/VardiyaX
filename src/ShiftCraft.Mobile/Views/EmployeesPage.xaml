@@ -35,7 +35,7 @@
                                    WidthRequest="50"
                                    Padding="0"
                                    HasShadow="False">
-                                <Label Text="{Binding FirstName, StringFormat='{0:0}'}" 
+                                <Label Text="{Binding FullName, Converter={StaticResource FirstCharConverter}}" 
                                        FontSize="20" 
                                        FontAttributes="Bold"
                                        TextColor="White"

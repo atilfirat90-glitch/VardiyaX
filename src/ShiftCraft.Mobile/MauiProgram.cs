@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using ShiftCraft.Mobile.Services;
 using ShiftCraft.Mobile.ViewModels;
@@ -40,6 +40,18 @@ public static class MauiProgram
         // v1.2: Employee Management Service
         builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
         
+        // v1.3: In-App Notification Service
+        builder.Services.AddSingleton<INotificationService, NotificationService>();
+        
+        // v1.4: Shift Service
+        builder.Services.AddSingleton<IShiftService, ShiftService>();
+        
+        // v1.5: New Feature Services
+        builder.Services.AddSingleton<IShiftSwapService, ShiftSwapService>();
+        builder.Services.AddSingleton<ITimeOffService, TimeOffService>();
+        builder.Services.AddSingleton<ITeamMessageService, TeamMessageService>();
+        builder.Services.AddSingleton<IDashboardService, DashboardService>();
+        
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<EmployeesViewModel>();
@@ -54,6 +66,19 @@ public static class MauiProgram
         builder.Services.AddTransient<EmployeeManageViewModel>();
         builder.Services.AddTransient<EmployeeEditViewModel>();
         
+        // v1.3: Notifications ViewModel
+        builder.Services.AddTransient<NotificationsViewModel>();
+        
+        // v1.4: Shift Create & Schedule View ViewModels
+        builder.Services.AddTransient<ShiftCreateViewModel>();
+        builder.Services.AddTransient<ScheduleViewViewModel>();
+        
+        // v1.5: New Feature ViewModels
+        builder.Services.AddTransient<DashboardViewModel>();
+        builder.Services.AddTransient<ShiftSwapViewModel>();
+        builder.Services.AddTransient<TimeOffViewModel>();
+        builder.Services.AddTransient<TeamChatViewModel>();
+        
         // Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<EmployeesPage>();
@@ -67,6 +92,19 @@ public static class MauiProgram
         // v1.2: Employee Management Pages
         builder.Services.AddTransient<EmployeeManagePage>();
         builder.Services.AddTransient<EmployeeEditPage>();
+        
+        // v1.3: Notifications Page
+        builder.Services.AddTransient<NotificationsPage>();
+        
+        // v1.4: Shift Create & Schedule View Pages
+        builder.Services.AddTransient<ShiftCreatePage>();
+        builder.Services.AddTransient<ScheduleViewPage>();
+        
+        // v1.5: New Feature Pages
+        builder.Services.AddTransient<DashboardPage>();
+        builder.Services.AddTransient<ShiftSwapPage>();
+        builder.Services.AddTransient<TimeOffPage>();
+        builder.Services.AddTransient<TeamChatPage>();
         
         // Shell
         builder.Services.AddSingleton<AppShell>();

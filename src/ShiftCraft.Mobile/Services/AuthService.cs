@@ -63,6 +63,9 @@ public class AuthService : IAuthService
     public string? Role => _role;
     public bool IsManager => _role == "Admin" || _role == "Manager";
     public bool IsWorker => _role == "Worker" || _role == "Trainee";
+    public bool IsAdmin => _role == "Admin";
+    public bool IsEmployee => !IsManager && !IsAdmin;
+    public int BusinessId { get; private set; } = 1;
 
     public async Task<LoginResponse?> LoginAsync(string username, string password)
     {
@@ -195,6 +198,12 @@ public class AuthService : IAuthService
             
             _role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role")?.Value ?? "Worker";
             _username = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name || c.Type == "unique_name")?.Value ?? _username;
+            
+            var businessIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "business_id" || c.Type == "businessId")?.Value;
+            if (int.TryParse(businessIdClaim, out var businessId))
+            {
+                BusinessId = businessId;
+            }
         }
         catch
         {

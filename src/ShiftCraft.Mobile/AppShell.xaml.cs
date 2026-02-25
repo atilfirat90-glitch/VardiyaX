@@ -1,4 +1,4 @@
-﻿using ShiftCraft.Mobile.Services;
+using ShiftCraft.Mobile.Services;
 using ShiftCraft.Mobile.Views;
 
 namespace ShiftCraft.Mobile;
@@ -25,6 +25,19 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("employeemanage", typeof(EmployeeManagePage));
         Routing.RegisterRoute("employeeedit", typeof(EmployeeEditPage));
         
+        // v1.3: Notification Center route
+        Routing.RegisterRoute("notificationcenter", typeof(NotificationsPage));
+        
+        // v1.4: Shift Create and Schedule View routes
+        Routing.RegisterRoute("shiftcreate", typeof(ShiftCreatePage));
+        Routing.RegisterRoute("scheduleview", typeof(ScheduleViewPage));
+        
+        // v1.5: New feature routes
+        Routing.RegisterRoute("dashboard", typeof(DashboardPage));
+        Routing.RegisterRoute("shiftswap", typeof(ShiftSwapPage));
+        Routing.RegisterRoute("timeoff", typeof(TimeOffPage));
+        Routing.RegisterRoute("teamchat", typeof(TeamChatPage));
+        
         // Update header when navigating
         Navigated += OnNavigated;
     }
@@ -40,7 +53,29 @@ public partial class AppShell : Shell
         {
             UserNameLabel.Text = _authService.Username ?? "VardiyaX";
             UserRoleLabel.Text = _authService.IsManager ? "Yönetici" : "Çalışan";
+            
+            UpdateFlyoutVisibility();
         }
+    }
+
+    private void UpdateFlyoutVisibility()
+    {
+        var isAdmin = _authService.IsAdmin;
+        var isManager = _authService.IsManager;
+
+        UserManagementItem.FlyoutItemIsVisible = isAdmin;
+        EmployeeManageItem.FlyoutItemIsVisible = isManager;
+        ShiftCreateItem.FlyoutItemIsVisible = isManager;
+        AuditLogsItem.FlyoutItemIsVisible = isManager;
+
+        ScheduleViewItem.FlyoutItemIsVisible = true;
+        NotificationsItem.FlyoutItemIsVisible = true;
+        NotificationSettingsItem.FlyoutItemIsVisible = true;
+
+        DashboardItem.FlyoutItemIsVisible = true;
+        ShiftSwapItem.FlyoutItemIsVisible = true;
+        TimeOffItem.FlyoutItemIsVisible = true;
+        TeamChatItem.FlyoutItemIsVisible = true;
     }
 
     private async void OnLogoutClicked(object? sender, EventArgs e)

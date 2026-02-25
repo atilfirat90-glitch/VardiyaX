@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShiftCraft.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ShiftCraft.Mobile.Models"
+             x:Class="ShiftCraft.Mobile.Views.DashboardPage"
+             x:DataType="vm:DashboardViewModel"
+             Title="Ana Panel"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Günlük Özet"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"/>
+
+            <!-- Today Shifts Card -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <HorizontalStackLayout Spacing="15">
+                    <Frame BackgroundColor="{StaticResource Primary}" 
+                           CornerRadius="25" 
+                           HeightRequest="50" 
+                           WidthRequest="50" 
+                           Padding="0"
+                           HasShadow="False">
+                        <Label Text="📅" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Frame>
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label Text="Bugünkü Vardiyalar" FontSize="14" TextColor="{StaticResource Gray600}"/>
+                        <Label Text="{Binding TodayShiftCount}" FontSize="28" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!-- Active Employees Card -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <HorizontalStackLayout Spacing="15">
+                    <Frame BackgroundColor="#4CAF50" 
+                           CornerRadius="25" 
+                           HeightRequest="50" 
+                           WidthRequest="50" 
+                           Padding="0"
+                           HasShadow="False">
+                        <Label Text="👥" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Frame>
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label Text="Aktif Çalışanlar" FontSize="14" TextColor="{StaticResource Gray600}"/>
+                        <Label Text="{Binding ActiveEmployeeCount}" FontSize="28" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!-- Pending Requests Row -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True" Grid.Column="0">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="🔄" FontSize="20"/>
+                        <Label Text="Bekleyen Takas" FontSize="12" TextColor="{StaticResource Gray600}"/>
+                        <Label Text="{Binding PendingSwapCount}" FontSize="24" FontAttributes="Bold" TextColor="#FF9800"/>
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True" Grid.Column="1">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="🏖️" FontSize="20"/>
+                        <Label Text="Bekleyen İzin" FontSize="12" TextColor="{StaticResource Gray600}"/>
+                        <Label Text="{Binding PendingTimeOffCount}" FontSize="24" FontAttributes="Bold" TextColor="#FF9800"/>
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Weekly Hours -->
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+                <HorizontalStackLayout Spacing="15">
+                    <Frame BackgroundColor="#2196F3" 
+                           CornerRadius="25" 
+                           HeightRequest="50" 
+                           WidthRequest="50" 
+                           Padding="0"
+                           HasShadow="False">
+                        <Label Text="⏰" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Frame>
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label Text="Haftalık Toplam Saat" FontSize="14" TextColor="{StaticResource Gray600}"/>
+                        <Label Text="{Binding WeeklyHoursTotal, StringFormat='{0:F1} saat'}" FontSize="28" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!-- Upcoming Shifts -->
+            <Label Text="Yaklaşan Vardiyalar"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,0"/>
+
+            <CollectionView ItemsSource="{Binding UpcomingShifts}"
+                            EmptyView="Yaklaşan vardiya bulunmuyor">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ShiftResponseDto">
+                        <Frame BackgroundColor="White" Padding="12" CornerRadius="8" HasShadow="True" Margin="0,0,0,8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="{Binding EmployeeName}" FontSize="16" FontAttributes="Bold"/>
+                                    <Label Text="{Binding DateText}" FontSize="13" TextColor="{StaticResource Gray600}"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" 
+                                       Text="{Binding TimeRange}" 
+                                       FontSize="14" 
+                                       TextColor="{StaticResource Primary}"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Loading -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               HeightRequest="40"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

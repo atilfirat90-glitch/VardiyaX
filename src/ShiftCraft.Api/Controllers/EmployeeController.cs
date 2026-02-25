@@ -43,6 +43,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<Employee>> Create(Employee employee, CancellationToken cancellationToken)
     {
         var created = await _employeeRepository.AddAsync(employee, cancellationToken);
@@ -50,6 +51,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, Employee employee, CancellationToken cancellationToken)
     {
         if (id != employee.Id) return BadRequest();
@@ -58,6 +60,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var employee = await _employeeRepository.GetByIdAsync(id, cancellationToken);
