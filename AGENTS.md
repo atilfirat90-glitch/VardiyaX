@@ -120,6 +120,19 @@ These pages follow the same `BaseViewModel` + constructor DI + `OnAppearing` pat
 3. Run: `ANDROID_SDK_ROOT=$HOME/android-sdk dotnet build -f net9.0-android`
 4. Restore original `TargetFrameworks` and delete `Directory.Build.props` after build
 
+### Shift Swap, Time Off, Availability, Team Messaging, Dashboard (v1.5)
+
+New API controllers and mobile pages added:
+- **ShiftSwapController** — CRUD for shift swap requests (`/api/shiftswap`), approve/reject/cancel flows
+- **AvailabilityController** — get/update employee weekly availability (`/api/availability/employee/{id}`)
+- **TimeOffController** — create/approve/reject time off requests (`/api/timeoff`)
+- **TeamMessageController** — team chat by channel + announcements (`/api/teammessage`)
+- **DashboardController** — daily summary dashboard (`/api/dashboard/business/{id}`)
+
+SQL migration `007_AddSwapAvailabilityTimeOffMessages.sql` must be applied after `006`. All new tables use `IF NOT EXISTS` guards.
+
+Mobile pages: `DashboardPage`, `ShiftSwapPage`, `TimeOffPage`, `TeamChatPage` — all following the same `BaseViewModel` + constructor DI + `OnAppearing` pattern.
+
 ### Scope Limitations
 
 - `ShiftCraft.Mobile` cannot be **run** on headless Linux (no emulator/device).
